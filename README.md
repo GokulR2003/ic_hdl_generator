@@ -117,5 +117,12 @@ assign {{ports.outputs[0]}} = ~({{ports.inputs[0]}} & {{ports.inputs[1]}});
 
 endmodule
 ```
+## Contributing
+- Fork the repository
 
+- Create a feature branch
+
+- Add tests for new features
+
+- Submit a pull request
 
