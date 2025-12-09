@@ -1,1 +1,65 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Category:    {{category}}
+// Subtype:     {{subtype}}
+// Family:      {{logic_family}}
+// Generated:   {{timestamp}}
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module {{module_name|default('IC_' + part_number)}}(
+    // Control inputs
+    input wire DIR,
+    input wire OE_n,
+    
+    // Bidirectional buses
+    inout wire [7:0] A,
+    inout wire [7:0] B,
+    
+    // Power ports
+    input wire {{ports.power[0]}},  // VCC
+    input wire {{ports.power[1]}}   // GND
+);
+
+// ============================================================================
+// Parameters
+// ============================================================================
+// Width:              {{parameters.width}}-bit
+// Propagation Delay:  {{parameters.propagation_delay_ns}} ns
+// Package Type:       {{parameters.package_type}}
+// ============================================================================
+
+// ============================================================================
+// Critical Correction
+// ============================================================================
+// {{parameters.critical_correction|default('')}}
+// ============================================================================
+
+// ============================================================================
+// Internal Tri-state Buffers
+// ============================================================================
+// Truth Table:
+// OE_n DIR | A Bus      | B Bus
+// 1    X   | High-Z     | High-Z
+// 0    0   | Output     | Input (B->A)
+// 0    1   | Input      | Output (A->B)
+// ============================================================================
+
+// Direction: A->B when DIR=1, B->A when DIR=0
+
+// A bus drivers
+assign A = (!OE_n && !DIR) ? B : 8'bz;
+
+// B bus drivers
+assign B = (!OE_n && DIR) ? A : 8'bz;
+
+// ============================================================================
+// Synthesis Warning
+// ============================================================================
+// {{bidirectional_handling.synthesis_warning|default('')}}
+// ============================================================================
+
+endmodule
