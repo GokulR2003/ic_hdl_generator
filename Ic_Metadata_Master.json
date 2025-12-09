@@ -1,0 +1,1728 @@
+[
+  {
+    "part_number": "7400",
+    "ic_name": "7400 Quad 2-Input NAND",
+    "category": "combinational",
+    "subtype": "nand_quad",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7400", "74LS00", "74HC00", "74HCT00", "SN7400", "DM7400"],
+      "confidence_threshold": 0.85,
+      "common_misreads": ["740O", "74OO", "74DO", "7A00"]
+    },
+    
+    "symbol_recognition": {
+      "templates": ["nand_gate_ansi.png", "nand_gate_iec.png"],
+      "features": {
+        "shape": "d-shape",
+        "bubble_output": true,
+        "character": null,
+        "input_count": 2,
+        "output_count": 1,
+        "style": "ansi"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A1": 1, "B1": 2, "Y1": 3,
+      "A2": 4, "B2": 5, "Y2": 6,
+      "GND": 7,
+      "Y3": 8, "B3": 9, "A3": 10,
+      "Y4": 11, "B4": 12, "A4": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 4,
+      "inputs_per_gate": 2,
+      "bits": 1,
+      "propagation_delay_ns": 10,
+      "drive_strength": "standard",
+      "fanout": 10
+    },
+    
+    "variant_disambiguation": {
+      "74LS00": {
+        "family": "LS",
+        "technology": "Low-power Schottky TTL",
+        "supply_voltage": "5V ±5%",
+        "propagation_delay_ns": 10,
+        "power_dissipation": "low"
+      },
+      "74HC00": {
+        "family": "HC",
+        "technology": "High-speed CMOS",
+        "supply_voltage": "2-6V",
+        "propagation_delay_ns": 8,
+        "power_dissipation": "very_low"
+      },
+      "74HCT00": {
+        "family": "HCT",
+        "technology": "High-speed CMOS (TTL-compatible inputs)",
+        "supply_voltage": "4.5-5.5V",
+        "propagation_delay_ns": 9,
+        "input_compatibility": "TTL levels"
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = ~(A & B)",
+      "truth_table": {
+        "00": 1, "01": 1, "10": 1, "11": 0
+      }
+    },
+    
+    "template": "nand_quad",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["combinational"],
+        "special_constructs": ["assign_statements"]
+      },
+      "vhdl": {
+        "entity_ports": ["all_inputs", "all_outputs"],
+        "architecture_style": "behavioral",
+        "special_constructs": ["concurrent_assignments"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 16,
+      "required_test_cases": [
+        "all_zeros",
+        "all_ones",
+        "alternating_pattern",
+        "truth_table_exhaustive"
+      ],
+      "edge_cases": [
+        "boundary_conditions"
+      ],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Standard 7400 family IC. Four independent NAND gates.",
+    "complexity_score": 1,
+    "package_types": ["DIP-14", "SOIC-14", "TSSOP-14"]
+  },
+  
+  {
+    "part_number": "7402",
+    "ic_name": "7402 Quad 2-Input NOR",
+    "category": "combinational",
+    "subtype": "nor_quad",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7402", "74LS02", "74HC02"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "d-shape",
+        "bubble_output": true,
+        "character": "≥1",
+        "input_count": 2,
+        "output_count": 1,
+        "style": "nor_gate"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "Y1": 1, "A1": 2, "B1": 3,
+      "Y2": 4, "A2": 5, "B2": 6,
+      "GND": 7,
+      "A3": 8, "B3": 9, "Y3": 10,
+      "A4": 11, "B4": 12, "Y4": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 4,
+      "propagation_delay_ns": 12,
+      "pinout_warning": "Output-first pinout (Y, A, B), different from 7400 (A, B, Y)"
+    },
+    
+    "variant_disambiguation": {
+      "74LS02": {
+        "family": "LS",
+        "propagation_delay_ns": 12
+      },
+      "74HC02": {
+        "family": "HC",
+        "propagation_delay_ns": 10
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = ~(A | B)",
+      "truth_table": {
+        "00": 1, "01": 0, "10": 0, "11": 0
+      }
+    },
+    
+    "template": "nor_quad",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["combinational"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 16,
+      "required_test_cases": ["truth_table_exhaustive"],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "WARNING: Pinout is output-first (Y, A, B), unlike 7400 (A, B, Y).",
+    "complexity_score": 1
+  },
+  
+  {
+    "part_number": "7404",
+    "ic_name": "7404 Hex Inverter",
+    "category": "combinational",
+    "subtype": "inverter_hex",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7404", "74LS04", "74HC04", "74HCT04"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "triangle",
+        "bubble_output": true,
+        "input_count": 1,
+        "output_count": 1,
+        "style": "inverter"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "A2", "A3", "A4", "A5", "A6"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4", "Y5", "Y6"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A1": 1, "Y1": 2,
+      "A2": 3, "Y2": 4,
+      "A3": 5, "Y3": 6,
+      "GND": 7,
+      "Y4": 8, "A4": 9,
+      "Y5": 10, "A5": 11,
+      "Y6": 12, "A6": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 6,
+      "propagation_delay_ns": 8
+    },
+    
+    "variant_disambiguation": {
+      "74LS04": {
+        "family": "LS",
+        "propagation_delay_ns": 8
+      },
+      "74HC04": {
+        "family": "HC",
+        "propagation_delay_ns": 6
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = ~A",
+      "truth_table": {
+        "0": 1,
+        "1": 0
+      }
+    },
+    
+    "template": "inverter_hex",
+    "test_coverage": {
+      "min_test_vectors": 12,
+      "required_test_cases": ["all_zeros", "all_ones"],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Hex inverter (6 independent inverters)",
+    "complexity_score": 1
+  },
+  
+  {
+    "part_number": "7408",
+    "ic_name": "7408 Quad 2-Input AND",
+    "category": "combinational",
+    "subtype": "and_quad",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7408", "74LS08", "74HC08", "74HCT08"],
+      "common_misreads": ["74O8", "74B8", "74D8"]
+    },
+    
+    "symbol_recognition": {
+      "templates": ["and_gate_ansi.png", "and_gate_iec.png"],
+      "features": {
+        "shape": "d-shape",
+        "bubble_output": false,
+        "character": "&",
+        "input_count": 2,
+        "output_count": 1,
+        "style": "ansi"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A1": 1, "B1": 2, "Y1": 3,
+      "A2": 4, "B2": 5, "Y2": 6,
+      "GND": 7,
+      "Y3": 8, "B3": 9, "A3": 10,
+      "Y4": 11, "B4": 12, "A4": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 4,
+      "inputs_per_gate": 2,
+      "bits": 1,
+      "propagation_delay_ns": 15,
+      "drive_strength": "standard"
+    },
+    
+    "variant_disambiguation": {
+      "74LS08": {
+        "family": "LS",
+        "propagation_delay_ns": 15
+      },
+      "74HC08": {
+        "family": "HC",
+        "propagation_delay_ns": 12
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = A & B",
+      "truth_table": {
+        "00": 0, "01": 0, "10": 0, "11": 1
+      }
+    },
+    
+    "template": "and_quad",
+    "template_variables": {
+      "module_name": "IC_7408_QUAD_AND",
+      "generate_testbench": true
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 16,
+      "required_test_cases": ["truth_table_exhaustive"],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Quad 2-input AND gate. Similar pinout to 7400.",
+    "complexity_score": 1,
+    "related_ics": ["7400", "7402", "7432"]
+  },
+  
+  {
+    "part_number": "7432",
+    "ic_name": "7432 Quad 2-Input OR",
+    "category": "combinational",
+    "subtype": "or_quad",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7432", "74LS32", "74HC32", "74HCT32"],
+      "confidence_threshold": 0.85
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "d-shape",
+        "bubble_output": false,
+        "character": "≥1",
+        "input_count": 2,
+        "output_count": 1,
+        "style": "ansi"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A1": 1, "B1": 2, "Y1": 3,
+      "A2": 4, "B2": 5, "Y2": 6,
+      "GND": 7,
+      "Y3": 8, "B3": 9, "A3": 10,
+      "Y4": 11, "B4": 12, "A4": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 4,
+      "inputs_per_gate": 2,
+      "bits": 1,
+      "propagation_delay_ns": 15
+    },
+    
+    "variant_disambiguation": {
+      "74LS32": {
+        "family": "LS",
+        "propagation_delay_ns": 15
+      },
+      "74HC32": {
+        "family": "HC",
+        "propagation_delay_ns": 12
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = A | B",
+      "truth_table": {
+        "00": 0, "01": 1, "10": 1, "11": 1
+      }
+    },
+    
+    "template": "or_quad",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["combinational"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 16,
+      "required_test_cases": ["truth_table_exhaustive"],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Quad 2-input OR gate",
+    "complexity_score": 1
+  },
+  
+  {
+    "part_number": "7486",
+    "ic_name": "7486 Quad 2-Input XOR",
+    "category": "combinational",
+    "subtype": "xor_quad",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7486", "74LS86", "74HC86", "74HCT86"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "d-shape",
+        "bubble_output": false,
+        "character": "=1",
+        "input_count": 2,
+        "output_count": 1,
+        "style": "ansi"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A1", "B1", "A2", "B2", "A3", "B3", "A4", "B4"],
+      "outputs": ["Y1", "Y2", "Y3", "Y4"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A1": 1, "B1": 2, "Y1": 3,
+      "A2": 4, "B2": 5, "Y2": 6,
+      "GND": 7,
+      "Y3": 8, "B3": 9, "A3": 10,
+      "Y4": 11, "B4": 12, "A4": 13,
+      "VCC": 14
+    },
+    
+    "parameters": {
+      "gates_count": 4,
+      "inputs_per_gate": 2,
+      "bits": 1,
+      "propagation_delay_ns": 20
+    },
+    
+    "variant_disambiguation": {
+      "74LS86": {
+        "family": "LS",
+        "propagation_delay_ns": 20
+      },
+      "74HC86": {
+        "family": "HC",
+        "propagation_delay_ns": 15
+      }
+    },
+    
+    "behavior": {
+      "function": "Y = A ^ B",
+      "truth_table": {
+        "00": 0, "01": 1, "10": 1, "11": 0
+      }
+    },
+    
+    "template": "xor_quad",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["combinational"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 16,
+      "required_test_cases": ["truth_table_exhaustive"],
+      "simulation_duration_ns": 100,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Quad XOR gate, commonly used for parity generation",
+    "complexity_score": 2
+  },
+  
+  {
+    "part_number": "7474",
+    "ic_name": "7474 Dual D-Type Flip-Flop (Preset/Clear)",
+    "category": "sequential",
+    "subtype": "d_ff_dual_async",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7474", "74LS74", "74HC74", "74HCT74"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "clock_symbol": "triangle",
+        "bubble_preset": true,
+        "bubble_clear": true,
+        "input_count": 8,
+        "output_count": 4,
+        "style": "flip_flop"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["1D", "1CLK", "1PRE_n", "1CLR_n", "2D", "2CLK", "2PRE_n", "2CLR_n"],
+      "outputs": ["1Q", "1Q_n", "2Q", "2Q_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "1CLR_n": 1, "1D": 2, "1CLK": 3, "1PRE_n": 4, "1Q": 5, "1Q_n": 6, "GND": 7,
+      "2Q_n": 8, "2Q": 9, "2PRE_n": 10, "2CLK": 11, "2D": 12, "2CLR_n": 13, "VCC": 14
+    },
+    
+    "parameters": {
+      "flip_flops_count": 2,
+      "bits": 1,
+      "edge_type": "posedge",
+      "preset": "active_low",
+      "clear": "active_low",
+      "setup_time_ns": 20,
+      "hold_time_ns": 5,
+      "propagation_delay_ns": 25
+    },
+    
+    "variant_disambiguation": {
+      "74LS74": {
+        "family": "LS",
+        "setup_time_ns": 20,
+        "hold_time_ns": 5,
+        "propagation_delay_ns": 25
+      },
+      "74HC74": {
+        "family": "HC",
+        "setup_time_ns": 15,
+        "hold_time_ns": 3,
+        "propagation_delay_ns": 20
+      }
+    },
+    
+    "behavior": {
+      "function": "Dual D flip-flop with asynchronous preset and clear",
+      "state_table": {
+        "async": {
+          "PRE_n=0, CLR_n=1": "Q=1 (preset)",
+          "PRE_n=1, CLR_n=0": "Q=0 (clear)",
+          "PRE_n=0, CLR_n=0": "invalid"
+        },
+        "sync": "On CLK↑: Q = D when PRE_n=1, CLR_n=1"
+      }
+    },
+    
+    "hdl_generation_notes": {
+      "timing_limitations": "Setup/hold times not modeled. Functional behavior only.",
+      "async_behavior": "Asynchronous preset/clear modeled, but metastability not simulated.",
+      "synthesis_notes": "Generated HDL is synthesizable but may require timing constraints."
+    },
+    
+    "template": "d_ff_dual_async",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["sequential", "async_reset"],
+        "special_constructs": ["posedge_sensitivity", "async_controls"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 32,
+      "required_test_cases": [
+        "async_preset",
+        "async_clear",
+        "sync_data",
+        "clock_edge"
+      ],
+      "edge_cases": [
+        "async_control_during_clock",
+        "setup_violation",
+        "hold_violation"
+      ],
+      "simulation_duration_ns": 1000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Standard dual D flip-flop with asynchronous controls",
+    "complexity_score": 3
+  },
+  
+  {
+    "part_number": "7476",
+    "ic_name": "7476 Dual JK Flip-Flop (Preset/Clear)",
+    "category": "sequential",
+    "subtype": "jk_ff_dual",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7476", "74LS76", "74HC76"]
+    },
+    
+    "ports": {
+      "inputs": ["1J", "1K", "1CLK", "1PRE_n", "1CLR_n", 
+                 "2J", "2K", "2CLK", "2PRE_n", "2CLR_n"],
+      "outputs": ["1Q", "1Q_n", "2Q", "2Q_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "1K": 1, "1PRE_n": 2, "1CLR_n": 3, "1J": 4, "VCC": 5, "1CLK": 6, "2PRE_n": 7, "1Q_n": 8,
+      "1Q": 9, "2Q_n": 10, "2Q": 11, "2K": 12, "GND": 13, "2CLR_n": 14, "2CLK": 15, "2J": 16
+    },
+    
+    "parameters": {
+      "flip_flops_count": 2,
+      "edge_type": "negedge",
+      "preset": "active_low",
+      "clear": "active_low",
+      "critical_correction": "Pin 7 is 2PRE_n (was incorrectly duplicated as 1PRE_n)"
+    },
+    
+    "variant_disambiguation": {
+      "74LS76": {
+        "family": "LS",
+        "edge_type": "negedge",
+        "setup_time_ns": 25,
+        "propagation_delay_ns": 30
+      }
+    },
+    
+    "behavior": {
+      "function": "Dual JK flip-flop with asynchronous preset and clear",
+      "truth_table": {
+        "JK=00": "Q(t+1) = Q(t) (hold)",
+        "JK=01": "Q(t+1) = 0 (reset)",
+        "JK=10": "Q(t+1) = 1 (set)",
+        "JK=11": "Q(t+1) = Q'(t) (toggle)"
+      }
+    },
+    
+    "hdl_generation_notes": {
+      "timing_limitations": "Setup/hold times not modeled. Functional behavior only.",
+      "async_behavior": "Asynchronous preset/clear modeled, but metastability not simulated.",
+      "synthesis_notes": "Generated HDL is synthesizable but may require timing constraints."
+    },
+    
+    "template": "jk_ff_dual",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["sequential", "async_reset"],
+        "special_constructs": ["negedge_sensitivity", "jk_logic"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 64,
+      "required_test_cases": [
+        "jk_truth_table",
+        "async_controls",
+        "toggle_mode"
+      ],
+      "edge_cases": [
+        "async_during_clock",
+        "toggle_overflow"
+      ],
+      "simulation_duration_ns": 1000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Classic dual JK flip-flop, education standard. Pin 7 is 2PRE_n (not 1PRE_n).",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "74138",
+    "ic_name": "74138 3-to-8 Line Decoder/Demultiplexer",
+    "category": "combinational",
+    "subtype": "decoder_3to8",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74138", "74LS138", "74HC138"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "inputs": 6,
+        "outputs": 8,
+        "output_bubbles": true,
+        "style": "decoder"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A", "B", "C", "G1", "G2A_n", "G2B_n"],
+      "outputs": ["Y0_n", "Y1_n", "Y2_n", "Y3_n", "Y4_n", "Y5_n", "Y6_n", "Y7_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "A": 1, "B": 2, "C": 3, "G2A_n": 4, "G2B_n": 5, "G1": 6, "Y7_n": 7, "GND": 8,
+      "Y0_n": 9, "Y1_n": 10, "Y2_n": 11, "Y3_n": 12, "Y4_n": 13, "Y5_n": 14, "Y6_n": 15, "VCC": 16
+    },
+    
+    "parameters": {
+      "input_width": 3,
+      "output_width": 8,
+      "enable_logic": "G1 AND ~G2A_n AND ~G2B_n",
+      "output_active": "low"
+    },
+    
+    "variant_disambiguation": {
+      "74LS138": {
+        "family": "LS",
+        "propagation_delay_ns": 22
+      },
+      "74HC138": {
+        "family": "HC",
+        "propagation_delay_ns": 18
+      }
+    },
+    
+    "behavior": {
+      "function": "3-to-8 decoder with active-low outputs and three enable inputs"
+    },
+    
+    "template": "decoder_3to8",
+    "test_coverage": {
+      "min_test_vectors": 64,
+      "required_test_cases": [
+        "all_address_combinations",
+        "enable_conditions",
+        "disable_conditions"
+      ],
+      "simulation_duration_ns": 500,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "3-to-8 line decoder/demultiplexer",
+    "complexity_score": 3
+  },
+  
+  {
+    "part_number": "74139",
+    "ic_name": "74139 Dual 2-to-4 Line Decoder",
+    "category": "combinational",
+    "subtype": "decoder_2to4_dual",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74139", "74LS139", "74HC139"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "inputs": 6,
+        "outputs": 8,
+        "output_bubbles": true,
+        "style": "decoder"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["1A", "1B", "1G_n", "2A", "2B", "2G_n"],
+      "outputs": ["1Y0_n", "1Y1_n", "1Y2_n", "1Y3_n", "2Y0_n", "2Y1_n", "2Y2_n", "2Y3_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "1G_n": 1, "1A": 2, "1B": 3, "1Y0_n": 4, "1Y1_n": 5, "1Y2_n": 6, "1Y3_n": 7, "GND": 8,
+      "2Y0_n": 9, "2Y1_n": 10, "2Y2_n": 11, "2Y3_n": 12, "2A": 13, "2B": 14, "2G_n": 15, "VCC": 16
+    },
+    
+    "parameters": {
+      "decoders_count": 2,
+      "input_width": 2,
+      "output_width": 4,
+      "independent_enables": true,
+      "output_active": "low"
+    },
+    
+    "variant_disambiguation": {
+      "74LS139": {
+        "family": "LS",
+        "propagation_delay_ns": 20
+      },
+      "74HC139": {
+        "family": "HC",
+        "propagation_delay_ns": 16
+      }
+    },
+    
+    "behavior": {
+      "function": "Dual 2-to-4 decoder with independent active-low enables"
+    },
+    
+    "template": "decoder_2to4_dual",
+    "template_variables": {
+      "module_name": "IC_74139_DUAL_DECODER"
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 48,
+      "required_test_cases": [
+        "all_address_combinations",
+        "independent_enable_tests"
+      ],
+      "simulation_duration_ns": 500,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Dual 2-to-4 line decoder/demultiplexer with independent enables",
+    "complexity_score": 2
+  },
+  
+  {
+    "part_number": "74147",
+    "ic_name": "74147 10-to-4 Line Priority Encoder",
+    "category": "combinational",
+    "subtype": "encoder_10to4_priority",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74147", "74LS147", "74HC147"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "inputs": 9,
+        "outputs": 4,
+        "style": "encoder"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["I1_n", "I2_n", "I3_n", "I4_n", "I5_n", "I6_n", "I7_n", "I8_n", "I9_n"],
+      "outputs": ["A_n", "B_n", "C_n", "D_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    "pin_map": {
+      "I4_n": 1, "I5_n": 2, "I6_n": 3, "I7_n": 4, "I8_n": 5, "C_n": 6, "B_n": 7, "GND": 8,
+      "A_n": 9, "I9_n": 10, "I1_n": 11, "I2_n": 12, "I3_n": 13, "D_n": 14, "NC": 15, "VCC": 16
+    },
+    
+    "parameters": {
+      "input_width": 9,
+      "output_width": 4,
+      "priority": "highest_number",
+      "active_level": "low",
+      "pinout_correction": "Added pin 15 as NC (was missing)"
+    },
+    
+    "variant_disambiguation": {
+      "74LS147": {
+        "family": "LS",
+        "propagation_delay_ns": 35
+      },
+      "74HC147": {
+        "family": "HC",
+        "propagation_delay_ns": 30
+      }
+    },
+    
+    "behavior": {
+      "function": "10-line to 4-line BCD priority encoder with active-low inputs/outputs",
+      "notes": "I9 has highest priority, I1 has lowest"
+    },
+    
+    "template": "encoder_10to4_priority",
+    "template_variables": {
+      "module_name": "IC_74147_PRIORITY_ENCODER"
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 20,
+      "required_test_cases": [
+        "priority_testing",
+        "multiple_active_inputs",
+        "no_active_inputs"
+      ],
+      "simulation_duration_ns": 500,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Pins 6, 7, 9, 14 are outputs. Pin 15 is NC. Logic is Active Low.",
+    "complexity_score": 3
+  },
+  
+  {
+    "part_number": "74153",
+    "ic_name": "74153 Dual 4:1 Multiplexer",
+    "category": "combinational",
+    "subtype": "mux_4to1_dual",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74153", "74LS153", "74HC153"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "inputs": 6,
+        "outputs": 2,
+        "select_lines": 2,
+        "style": "mux"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["1C0", "1C1", "1C2", "1C3", "2C0", "2C1", "2C2", "2C3", "A", "B", "1G_n", "2G_n"],
+      "outputs": ["1Y", "2Y"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "1G_n": 1, "B": 2, "1C3": 3, "1C2": 4, "1C1": 5, "1C0": 6, "1Y": 7, "GND": 8,
+      "2Y": 9, "2C0": 10, "2C1": 11, "2C2": 12, "2C3": 13, "A": 14, "2G_n": 15, "VCC": 16
+    },
+    
+    "parameters": {
+      "mux_count": 2,
+      "inputs_per_mux": 4,
+      "select_width": 2,
+      "independent_enables": true,
+      "enable_active": "low",
+      "pinout_note": "Pin 2 is Select B, Pin 14 is Select A. Inputs are C0-C3 (C3 is MSB)."
+    },
+    
+    "variant_disambiguation": {
+      "74LS153": {
+        "family": "LS",
+        "propagation_delay_ns": 18
+      },
+      "74HC153": {
+        "family": "HC",
+        "propagation_delay_ns": 15
+      }
+    },
+    
+    "behavior": {
+      "function": "Dual 4:1 multiplexer with independent active-low enables",
+      "selection_logic": "Y = (G_n=0) ? C[sel] : 0 where sel = {B, A}"
+    },
+    
+    "template": "mux_4to1_dual",
+    "test_coverage": {
+      "min_test_vectors": 64,
+      "required_test_cases": [
+        "all_select_combinations",
+        "enable_disable_tests",
+        "independent_mux_testing"
+      ],
+      "simulation_duration_ns": 500,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Dual 4:1 multiplexer with independent enables. Pin 2 = Select B, Pin 14 = Select A.",
+    "complexity_score": 3
+  },
+  
+  {
+    "part_number": "7447",
+    "ic_name": "7447 BCD to 7-Segment Decoder/Driver",
+    "category": "combinational",
+    "subtype": "decoder_bcd_7seg",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7447", "74LS47", "74HC47"]
+    },
+    
+    "ports": {
+      "inputs": ["A", "B", "C", "D", "LT_n", "RBI_n"],
+      "outputs": ["a", "b", "c", "d", "e", "f", "g"],
+      "bidirectional": ["BI_RBO_n"],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "B": 1, "C": 2, "LT_n": 3, "BI_RBO_n": 4, "RBI_n": 5, "D": 6, "A": 7, "GND": 8,
+      "e": 9, "d": 10, "c": 11, "b": 12, "a": 13, "g": 14, "f": 15, "VCC": 16
+    },
+    
+    "parameters": {
+      "output_type": "open_collector",
+      "display_type": "common_anode",
+      "bidirectional_pins": ["BI_RBO_n"]
+    },
+    
+    "variant_disambiguation": {
+      "74LS47": {
+        "family": "LS",
+        "output_type": "open_collector",
+        "propagation_delay_ns": 100
+      },
+      "74HC47": {
+        "family": "HC",
+        "output_type": "push_pull",
+        "propagation_delay_ns": 80
+      }
+    },
+    
+    "bidirectional_handling": {
+      "pins": {
+        "BI_RBO_n": {
+          "pin_number": 4,
+          "type": "bidirectional_open_drain",
+          "input_function": "Blanking Input (BI)",
+          "output_function": "Ripple Blanking Output (RBO)",
+          "logic": {
+            "as_input": "When driven low externally, blanks all segments",
+            "as_output": "Drives low when BCD input is 0000 and RBI_n is low"
+          }
+        }
+      },
+      "control_logic": {
+        "direction_implicit": true,
+        "explanation": "Pin acts as output when RBO conditions met, otherwise input"
+      },
+      "hdl_pattern": "conditional_bidirectional_open_drain",
+      "synthesis_warning": "Open-drain behavior requires pull-up resistor in real circuit",
+      "testbench_requirements": [
+        "Test BI input forcing blank (drive BI_RBO_n low)",
+        "Test RBO output for ripple blanking (BCD=0000, RBI_n=0)",
+        "Test cascaded operation with multiple 7447s"
+      ]
+    },
+    
+    "behavior": {
+      "function": "BCD to 7-segment decoder with lamp test and ripple blanking",
+      "bidirectional": "BI_RBO_n: Input for blanking, output for ripple blanking"
+    },
+    
+    "template": "decoder_bcd_7seg",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs", "bidirectional_pins"],
+        "always_blocks": ["combinational"],
+        "special_constructs": ["tristate", "open_drain"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 32,
+      "required_test_cases": [
+        "all_bcd_codes",
+        "lamp_test",
+        "ripple_blanking",
+        "external_blanking"
+      ],
+      "edge_cases": [
+        "cascaded_blanking",
+        "invalid_bcd_inputs"
+      ],
+      "simulation_duration_ns": 1000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "BCD to 7-segment decoder for common-anode displays. BI_RBO_n is bidirectional (pin 4), RBI_n is separate input (pin 5).",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "7485",
+    "ic_name": "7485 4-bit Magnitude Comparator",
+    "category": "combinational",
+    "subtype": "comparator_4bit",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7485", "74LS85", "74HC85"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "inputs": 11,
+        "outputs": 3,
+        "style": "comparator"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["A3", "A2", "A1", "A0", "B3", "B2", "B1", "B0", 
+                 "I_A_GT_B", "I_A_EQ_B", "I_A_LT_B"],
+      "outputs": ["A_GT_B", "A_EQ_B", "A_LT_B"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "B3": 1, "I_A_LT_B": 2, "I_A_EQ_B": 3, "I_A_GT_B": 4, "A_GT_B": 5, "A_EQ_B": 6, "A_LT_B": 7, "GND": 8,
+      "B0": 9, "A0": 10, "B1": 11, "A1": 12, "A2": 13, "B2": 14, "A3": 15, "VCC": 16
+    },
+
+    "parameters": {
+      "width": 4,
+      "propagation_delay_ns": 30,
+      "cascadable": true
+    },
+    
+    "variant_disambiguation": {
+      "74LS85": {
+        "family": "LS",
+        "propagation_delay_ns": 30
+      },
+      "74HC85": {
+        "family": "HC",
+        "propagation_delay_ns": 25
+      }
+    },
+    
+    "behavior": {
+      "function": "Compares two 4-bit words A and B with cascade inputs for expansion"
+    },
+    
+    "template": "comparator_4bit",
+    "test_coverage": {
+      "min_test_vectors": 256,
+      "required_test_cases": [
+        "all_comparison_cases",
+        "cascading_tests",
+        "boundary_conditions"
+      ],
+      "simulation_duration_ns": 1000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "4-bit magnitude comparator with cascade inputs",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "7490",
+    "ic_name": "7490 Decade Counter",
+    "category": "counter",
+    "subtype": "counter_decade",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7490", "74LS90", "74HC90"]
+    },
+    
+    "ports": {
+      "inputs": ["R0_1", "R0_2", "R9_1", "R9_2", "CLK_A", "CLK_B"],
+      "outputs": ["QA", "QB", "QC", "QD"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "CLK_B": 1, "R0_1": 2, "R0_2": 3, "VCC": 5,
+      "R9_1": 6, "R9_2": 7, "QC": 8, "QB": 9, "GND": 10,
+      "QD": 11, "QA": 12, "CLK_A": 14
+    },
+    
+    "parameters": {
+      "bits": 4,
+      "modulus": 10,
+      "reset_modes": ["reset_to_0", "reset_to_9"],
+      "power_pin_warning": "VCC is pin 5, GND is pin 10 (not standard 14/7)",
+      "data_cleanup": "Removed all NC entries to prevent duplicate key issues"
+    },
+    
+    "variant_disambiguation": {
+      "74LS90": {
+        "family": "LS",
+        "max_frequency_mhz": 32,
+        "power_dissipation": "medium"
+      },
+      "74HC90": {
+        "family": "HC",
+        "max_frequency_mhz": 50,
+        "power_dissipation": "low"
+      }
+    },
+    
+    "behavior": {
+      "function": "Decade counter with separate divide-by-2 and divide-by-5 sections",
+      "reset": "R0_1 AND R0_2 = 1 resets to 0, R9_1 AND R9_2 = 1 resets to 9"
+    },
+    
+    "hdl_generation_notes": {
+      "timing_limitations": "Setup/hold times not modeled. Functional behavior only.",
+      "async_behavior": "Asynchronous reset modeled, but metastability not simulated.",
+      "synthesis_notes": "Generated HDL is synthesizable but may require timing constraints."
+    },
+    
+    "template": "counter_decade_7490",
+    "test_coverage": {
+      "min_test_vectors": 100,
+      "required_test_cases": [
+        "full_count_cycle",
+        "async_reset_0",
+        "async_reset_9",
+        "clock_input_separation"
+      ],
+      "edge_cases": [
+        "reset_during_count",
+        "clock_skew_simulation"
+      ],
+      "simulation_duration_ns": 2000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Decade counter with non-standard power pins (VCC=5, GND=10)",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "7493",
+    "ic_name": "7493 4-bit Binary Counter",
+    "category": "counter",
+    "subtype": "counter_4bit_binary",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["7493", "74LS93", "74HC93"]
+    },
+    
+    "ports": {
+      "inputs": ["R0_1", "R0_2", "CLK_A", "CLK_B"],
+      "outputs": ["QA", "QB", "QC", "QD"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "CLK_B": 1, "R0_1": 2, "R0_2": 3, "VCC": 5,
+      "QC": 8, "QB": 9, "GND": 10,
+      "QD": 11, "QA": 12, "CLK_A": 14
+    },
+    
+    "parameters": {
+      "bits": 4,
+      "modulus": 16,
+      "reset_active": "high",
+      "power_pin_warning": "VCC is pin 5, GND is pin 10 (not standard 14/7)",
+      "data_cleanup": "Removed all NC entries to prevent duplicate key issues"
+    },
+    
+    "variant_disambiguation": {
+      "74LS93": {
+        "family": "LS",
+        "max_frequency_mhz": 35
+      },
+      "74HC93": {
+        "family": "HC",
+        "max_frequency_mhz": 60
+      }
+    },
+    
+    "behavior": {
+      "function": "4-bit binary ripple counter (divide-by-16)",
+      "reset": "R0_1 AND R0_2 = 1 resets counter to 0"
+    },
+    
+    "hdl_generation_notes": {
+      "timing_limitations": "Setup/hold times not modeled. Functional behavior only.",
+      "async_behavior": "Asynchronous reset modeled, but metastability not simulated.",
+      "synthesis_notes": "Generated HDL is synthesizable but may require timing constraints."
+    },
+    
+    "template": "counter_4bit_binary_7493",
+    "test_coverage": {
+      "min_test_vectors": 100,
+      "required_test_cases": [
+        "full_binary_count",
+        "async_reset",
+        "clock_input_separation"
+      ],
+      "edge_cases": [
+        "reset_during_count",
+        "maximum_frequency"
+      ],
+      "simulation_duration_ns": 2000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "4-bit binary counter with non-standard power pins (VCC=5, GND=10)",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "74121",
+    "ic_name": "74121 Monostable Multivibrator",
+    "category": "special",
+    "subtype": "monostable_multivibrator",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74121", "74LS121", "74HC121"]
+    },
+    
+    "ports": {
+      "inputs": ["A1", "A2", "B", "RINT", "CEXT", "Rext_Cext"],
+      "outputs": ["Q", "Q_n"],
+      "bidirectional": [],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "Q_n": 1, "A1": 3, "A2": 4, "B": 5, "Q": 6, "GND": 7,
+      "RINT": 9, "CEXT": 10, "Rext_Cext": 11, "VCC": 14
+    },
+    
+    "parameters": {
+      "pulse_width": "adjustable_via_RC",
+      "retriggerable": true,
+      "schmitt_trigger_inputs": true,
+      "pinout_note": "Q_n is pin 1 (not NC as previously listed)",
+      "data_cleanup": "Removed all NC entries to prevent duplicate key issues"
+    },
+    
+    "variant_disambiguation": {
+      "74LS121": {
+        "family": "LS",
+        "pulse_width_range": "40ns to 28s",
+        "timing_accuracy": "±5%"
+      },
+      "74HC121": {
+        "family": "HC",
+        "pulse_width_range": "30ns to 40s",
+        "timing_accuracy": "±3%"
+      }
+    },
+    
+    "hdl_generation_notes": {
+      "critical_warning": "This is an ANALOG/MIXED-SIGNAL IC. HDL model is BEHAVIORAL APPROXIMATION ONLY.",
+      "timing_accuracy": "RC timing cannot be accurately synthesized. Use SPICE for timing-critical designs.",
+      "synthesis_warning": "Generated Verilog/VHDL is for functional simulation only, not synthesis.",
+      "recommended_use": "For digital logic simulation. Use vendor IP or discrete timer ICs for FPGA implementation."
+    },
+    
+    "behavior": {
+      "function": "Monostable multivibrator (one-shot) with Schmitt trigger inputs"
+    },
+    
+    "template": "monostable_74121",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs"],
+        "always_blocks": ["behavioral_timing"],
+        "special_constructs": ["real_time_delay", "analog_approximation"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 20,
+      "required_test_cases": [
+        "pulse_generation",
+        "retrigger_test",
+        "schmitt_input_testing"
+      ],
+      "edge_cases": [
+        "minimum_pulse_width",
+        "maximum_pulse_width"
+      ],
+      "simulation_duration_ns": 10000,
+      "coverage_target": 0.80,
+      "coverage_note": "Lower coverage target due to analog nature"
+    },
+    
+    "notes": "Retriggerable monostable multivibrator. Note: Q_n is pin 1.",
+    "complexity_score": 6
+  },
+  
+  {
+    "part_number": "74245",
+    "ic_name": "74245 Octal Bus Transceiver",
+    "category": "combinational",
+    "subtype": "transceiver_8bit",
+    "logic_family": "TTL",
+    
+    "ocr_patterns": {
+      "text_patterns": ["74245", "74LS245", "74HC245"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "rectangle",
+        "bidirectional_arrows": true,
+        "enable_inputs": true,
+        "style": "transceiver"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["DIR", "OE_n"],
+      "outputs": [],
+      "bidirectional": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", 
+                       "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "DIR": 1, "A1": 2, "A2": 3, "A3": 4, "A4": 5, "A5": 6, "A6": 7, "A7": 8, "A8": 9, "GND": 10,
+      "B8": 11, "B7": 12, "B6": 13, "B5": 14, "B4": 15, "B3": 16, "B2": 17, "B1": 18, "OE_n": 19, "VCC": 20
+    },
+    
+    "parameters": {
+      "width": 8,
+      "propagation_delay_ns": 15,
+      "package_type": "DIP-20",
+      "critical_correction": "GND is pin 10 (was incorrectly listed as pin 9)"
+    },
+    
+    "variant_disambiguation": {
+      "74LS245": {
+        "family": "LS",
+        "technology": "Low-power Schottky TTL",
+        "supply_voltage": "5V ±5%",
+        "propagation_delay_ns": 15,
+        "power_dissipation": "low"
+      },
+      "74HC245": {
+        "family": "HC",
+        "technology": "High-speed CMOS",
+        "supply_voltage": "2-6V",
+        "propagation_delay_ns": 10,
+        "power_dissipation": "very_low"
+      },
+      "74HCT245": {
+        "family": "HCT",
+        "technology": "High-speed CMOS (TTL-compatible inputs)",
+        "supply_voltage": "4.5-5.5V",
+        "propagation_delay_ns": 12,
+        "input_compatibility": "TTL levels"
+      }
+    },
+    
+    "bidirectional_handling": {
+      "pins": {
+        "A_bus": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"],
+        "B_bus": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"]
+      },
+      "control_logic": {
+        "direction": {
+          "signal": "DIR",
+          "DIR_high": "A is input, B is output (A→B)",
+          "DIR_low": "B is input, A is output (B→A)"
+        },
+        "enable": {
+          "signal": "OE_n",
+          "active_level": "low",
+          "disabled_state": "All pins high-Z"
+        }
+      },
+      "hdl_pattern": "tristate_conditional",
+      "synthesis_warning": "Requires FPGA tri-state support or explicit direction muxing",
+      "testbench_requirements": [
+        "Test A→B transfer with DIR=1, OE_n=0",
+        "Test B→A transfer with DIR=0, OE_n=0",
+        "Test high-Z state when OE_n=1"
+      ]
+    },
+    
+    "behavior": {
+      "function": "Bidirectional bus buffer with direction control",
+      "truth_table": {
+        "OE_n=1": "All outputs = Z",
+        "OE_n=0, DIR=0": "B → A (B is input)",
+        "OE_n=0, DIR=1": "A → B (A is input)"
+      }
+    },
+    
+    "template": "transceiver_8bit",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["control_inputs", "bidirectional_buses", "power"],
+        "always_blocks": ["combinational"],
+        "special_constructs": ["tristate", "bidirectional", "generate_loop"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 128,
+      "required_test_cases": [
+        "directional_transfer",
+        "high_z_testing",
+        "bus_conflict_testing"
+      ],
+      "edge_cases": [
+        "simultaneous_enable_disable",
+        "direction_change_during_transfer"
+      ],
+      "simulation_duration_ns": 2000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "Octal bus transceiver with direction control (20-pin DIP). CRITICAL: GND is pin 10, not pin 9.",
+    "complexity_score": 4
+  },
+  
+  {
+    "part_number": "555",
+    "ic_name": "NE555 Timer IC",
+    "category": "special",
+    "subtype": "timer_555",
+    "logic_family": "analog_mixed",
+    
+    "ocr_patterns": {
+      "text_patterns": ["555", "NE555", "LM555", "IC555"]
+    },
+    
+    "symbol_recognition": {
+      "features": {
+        "shape": "dip8",
+        "unique_pins": ["TRIG", "THRES", "DISCH", "CONT"],
+        "style": "timer"
+      }
+    },
+    
+    "ports": {
+      "inputs": ["TRIG", "THRES", "RESET", "CONT"],
+      "outputs": ["OUT"],
+      "bidirectional": ["DISCH"],
+      "power": ["VCC", "GND"]
+    },
+    
+    "pin_map": {
+      "GND": 1, "TRIG": 2, "OUT": 3, "RESET": 4,
+      "CONT": 5, "THRES": 6, "DISCH": 7, "VCC": 8
+    },
+    
+    "parameters": {
+      "mode": ["astable", "monostable"],
+      "frequency_range": "up_to_500kHz",
+      "duty_cycle": "adjustable"
+    },
+    
+    "variant_disambiguation": {
+      "NE555": {
+        "family": "Bipolar",
+        "technology": "Bipolar TTL",
+        "supply_voltage": "4.5-16V",
+        "output_current": "200mA"
+      },
+      "LMC555": {
+        "family": "CMOS",
+        "technology": "CMOS",
+        "supply_voltage": "1.5-15V",
+        "output_current": "100mA"
+      }
+    },
+    
+    "bidirectional_handling": {
+      "pins": {
+        "DISCH": {
+          "pin_number": 7,
+          "type": "open_collector_discharge",
+          "function": "Discharge path for timing capacitor",
+          "logic": "Open when output high, pulls low when output low"
+        }
+      },
+      "hdl_pattern": "open_collector",
+      "synthesis_warning": "Analog timing behavior cannot be accurately synthesized. HDL model is functional approximation only.",
+      "testbench_requirements": [
+        "Test discharge behavior (behavioral only)",
+        "Note: Timing accuracy requires SPICE simulation"
+      ]
+    },
+    
+    "hdl_generation_notes": {
+      "critical_warning": "This is an ANALOG/MIXED-SIGNAL IC. HDL model is BEHAVIORAL APPROXIMATION ONLY.",
+      "timing_accuracy": "RC timing cannot be accurately synthesized. Use SPICE for timing-critical designs.",
+      "synthesis_warning": "Generated Verilog/VHDL is for functional simulation only, not synthesis.",
+      "recommended_use": "For digital logic simulation. Use vendor IP or discrete timer ICs for FPGA implementation."
+    },
+    
+    "behavior": {
+      "function": "Precision timing circuits (astable/monostable)"
+    },
+    
+    "template": "timer_555_behavioral",
+    "template_requirements": {
+      "verilog": {
+        "module_ports": ["all_inputs", "all_outputs", "bidirectional_pins"],
+        "always_blocks": ["behavioral_timing"],
+        "special_constructs": ["real_time_delay", "analog_approximation", "open_drain"]
+      }
+    },
+    
+    "test_coverage": {
+      "min_test_vectors": 10,
+      "required_test_cases": [
+        "astable_mode",
+        "monostable_mode",
+        "reset_function"
+      ],
+      "edge_cases": [
+        "minimum_frequency",
+        "maximum_frequency"
+      ],
+      "simulation_duration_ns": 10000,
+      "coverage_target": 0.70,
+      "coverage_note": "Lower coverage target due to analog nature"
+    },
+    
+    "notes": "Mixed-signal device. Verilog model is behavioral approximation only.",
+    "complexity_score": 7
+  },
+  
+  {
+    "part_number": "4017",
+    "ic_name": "CD4017 Decade Counter/Johnson Counter",
+    "category": "counter",
+    "subtype": "counter_decade_johnson",
+    "logic_family": "CMOS",
+    
+    "ocr_patterns": {
+      "text_patterns": ["4017", "CD4017", "HEF4017"]
+    },
+    
+    "ports": {
+      "inputs": ["CLK", "RESET", "ENABLE"],
+      "outputs": ["Q0", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "CARRY"],
+      "bidirectional": [],
+      "power": ["VDD", "VSS"]
+    },
+    
+    "pin_map": {
+      "Q5": 1, "Q1": 2, "Q0": 3, "Q2": 4, "Q6": 5, "Q7": 6, "Q3": 7, "VSS": 8,
+      "Q8": 9, "Q4": 10, "Q9": 11, "CARRY": 12, "ENABLE": 13, "CLK": 14, "RESET": 15, "VDD": 16
+    },
+    
+    "parameters": {
+      "stages": 5,
+      "states": 10,
+      "output_type": "one_hot"
+    },
+    
+    "variant_disambiguation": {
+      "CD4017": {
+        "family": "CMOS",
+        "technology": "Standard CMOS",
+        "supply_voltage": "3-15V",
+        "max_frequency_mhz": 5
+      },
+      "HEF4017": {
+        "family": "CMOS",
+        "technology": "High-speed CMOS",
+        "supply_voltage": "3-15V",
+        "max_frequency_mhz": 8
+      }
+    },
+    
+    "behavior": {
+      "function": "Decade counter with decoded one-hot outputs"
+    },
+    
+    "hdl_generation_notes": {
+      "timing_limitations": "Setup/hold times not modeled. Functional behavior only.",
+      "async_behavior": "Asynchronous reset modeled, but metastability not simulated.",
+      "synthesis_notes": "Generated HDL is synthesizable but may require timing constraints."
+    },
+    
+    "template": "counter_decade_4017",
+    "test_coverage": {
+      "min_test_vectors": 100,
+      "required_test_cases": [
+        "full_decade_count",
+        "async_reset",
+        "enable_disable",
+        "carry_generation"
+      ],
+      "edge_cases": [
+        "reset_during_count",
+        "enable_toggle"
+      ],
+      "simulation_duration_ns": 2000,
+      "coverage_target": 0.95
+    },
+    
+    "notes": "CMOS decade counter with 10 decoded outputs",
+    "complexity_score": 4
+  }
+]
