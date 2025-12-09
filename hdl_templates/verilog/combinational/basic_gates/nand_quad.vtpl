@@ -1,1 +1,35 @@
+// Auto-generated from IC Metadata
+// Part: {{part_number}} - {{ic_name}}
+// Family: {{logic_family}}
+// Generated: {{timestamp}}
 
+module {{module_name|default('IC_' + part_number)}}(
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
+    input wire {{ports.power|first}},
+    input wire {{ports.power|last}}
+);
+
+    // Parameters from metadata
+    // Gates: {{parameters.gates_count}}
+    // Propagation Delay: {{parameters.propagation_delay_ns}} ns
+    // Technology: {{variant_disambiguation[part_number].technology|default('Standard')}}
+
+    // NAND gate implementations
+    {% for i in range(1, parameters.gates_count + 1) %}
+    // Gate {{i}}
+    assign Y{{i}} = ~(A{{i}} & B{{i}});
+    {% endfor %}
+
+    // Power connections (not used in simulation)
+    // VCC = {{ports.power|first}}
+    // GND = {{ports.power|last}}
+
+endmodule
