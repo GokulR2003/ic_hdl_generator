@@ -1,0 +1,9 @@
+defaults:
+  language: verilog
+  output_dir: generated
+  indent_spaces: 2
+  
+templates:
+  verilog_extension: .v
+  vhdl_extension: .vhd
+  default_template: generic.vtpl
