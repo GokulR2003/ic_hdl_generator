@@ -1,1 +1,88 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Category:    {{category}}
+// Subtype:     {{subtype}}
+// Family:      {{logic_family}}
+// Generated:   {{timestamp}}
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module {{module_name|default('IC_' + part_number)}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Bidirectional ports
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},  // VCC
+    input wire {{ports.power[1]}}   // GND
+);
+
+// ============================================================================
+// Parameters
+// ============================================================================
+// Input Width:        {{parameters.input_width}}-bit
+// Output Width:       {{parameters.output_width}}-bit
+// Enable Logic:       {{parameters.enable_logic}}
+// Output Active:      {{parameters.output_active}}
+// ============================================================================
+
+// ============================================================================
+// Internal Signals
+// ============================================================================
+wire enable;
+reg [{{parameters.output_width-1}}:0] decoded;
+
+// ============================================================================
+// Enable Logic
+// ============================================================================
+assign enable = {{ports.inputs[3]}} & ~{{ports.inputs[4]}} & ~{{ports.inputs[5]}};
+
+// ============================================================================
+// Decoder Logic
+// ============================================================================
+always @(*) begin
+    if (enable) begin
+        case ({ {{ports.inputs[2]}}, {{ports.inputs[1]}}, {{ports.inputs[0]}} })
+            3'b000: decoded = 8'b11111110;
+            3'b001: decoded = 8'b11111101;
+            3'b010: decoded = 8'b11111011;
+            3'b011: decoded = 8'b11110111;
+            3'b100: decoded = 8'b11101111;
+            3'b101: decoded = 8'b11011111;
+            3'b110: decoded = 8'b10111111;
+            3'b111: decoded = 8'b01111111;
+            default: decoded = 8'b11111111;
+        endcase
+    end
+    else begin
+        decoded = 8'b11111111;  // All outputs inactive (high) when disabled
+    end
+end
+
+// ============================================================================
+// Output Assignments (Active Low)
+// ============================================================================
+assign {{ports.outputs[0]}} = decoded[0];
+assign {{ports.outputs[1]}} = decoded[1];
+assign {{ports.outputs[2]}} = decoded[2];
+assign {{ports.outputs[3]}} = decoded[3];
+assign {{ports.outputs[4]}} = decoded[4];
+assign {{ports.outputs[5]}} = decoded[5];
+assign {{ports.outputs[6]}} = decoded[6];
+assign {{ports.outputs[7]}} = decoded[7];
+
+endmodule
