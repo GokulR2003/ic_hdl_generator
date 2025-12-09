@@ -1,0 +1,10 @@
+from src.hdl_generator import HDLGenerator
+
+# Create generator
+gen = HDLGenerator('Ic_Metadata_Master.json', 'hdl_templates/')
+
+# Generate HDL
+verilog = gen.generate_hdl('7400', 'verilog')
+
+# Generate all
+gen.generate_all('verilog', 'output/')
