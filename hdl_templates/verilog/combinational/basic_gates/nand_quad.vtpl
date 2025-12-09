@@ -1,74 +1,16 @@
-// ============================================================================
-// Auto-generated HDL from IC Metadata
-// Part Number: {{part_number}}
-// IC Name:     {{ic_name}}
-// Category:    {{category}}
-// Subtype:     {{subtype}}
-// Family:      {{logic_family}}
-// Generated:   {{timestamp}}
-// ============================================================================
+// Auto-generated for {{part_number}} - {{ic_name}}
+// Generated: {{timestamp}}
 
 `timescale 1ns / 1ps
 
-module {{module_name|default('IC_' + part_number)}}(
-    // Input ports
-    {% for input in ports.inputs %}
-    input wire {{input}},
-    {% endfor %}
-    
-    // Output ports
-    {% for output in ports.outputs %}
-    output wire {{output}},
-    {% endfor %}
-    
-    // Bidirectional ports
-    {% for bidir in ports.bidirectional %}
-    inout wire {{bidir}},
-    {% endfor %}
-    
-    // Power ports
-    input wire {{ports.power[0]}},  // VCC
-    input wire {{ports.power[1]}}   // GND
+module IC_{{part_number}}(
+    {% for input in ports.inputs %}input {{input}},
+    {% endfor %}{% for output in ports.outputs %}output {{output}},
+    {% endfor %}input {{ports.power[0]}}, input {{ports.power[1]}}
 );
-
-// ============================================================================
-// Parameters
-// ============================================================================
-// Gates Count:       {{parameters.gates_count}}
-// Inputs per Gate:   {{parameters.inputs_per_gate}}
-// Propagation Delay: {{parameters.propagation_delay_ns}} ns
-// Drive Strength:    {{parameters.drive_strength}}
-// ============================================================================
-
-// ============================================================================
-// NAND Gate Implementations
-// ============================================================================
-// Function: Y = ~(A & B)
-// Truth Table:
-// A B | Y
-// 0 0 | 1
-// 0 1 | 1
-// 1 0 | 1
-// 1 1 | 0
-// ============================================================================
-
-// Gate 1
-assign {{ports.outputs[0]}} = ~({{ports.inputs[0]}} & {{ports.inputs[1]}});
-
-// Gate 2
-assign {{ports.outputs[1]}} = ~({{ports.inputs[2]}} & {{ports.inputs[3]}});
-
-// Gate 3
-assign {{ports.outputs[2]}} = ~({{ports.inputs[4]}} & {{ports.inputs[5]}});
-
-// Gate 4
-assign {{ports.outputs[3]}} = ~({{ports.inputs[6]}} & {{ports.inputs[7]}});
-
-// ============================================================================
-// Power Connections (for simulation completeness)
-// ============================================================================
-// Note: Power pins are included for pinout accuracy but are not functionally
-// modeled in this behavioral implementation.
-// ============================================================================
-
+    // NAND gates
+    assign {{ports.outputs[0]}} = ~({{ports.inputs[0]}} & {{ports.inputs[1]}});
+    assign {{ports.outputs[1]}} = ~({{ports.inputs[2]}} & {{ports.inputs[3]}});
+    assign {{ports.outputs[2]}} = ~({{ports.inputs[4]}} & {{ports.inputs[5]}});
+    assign {{ports.outputs[3]}} = ~({{ports.inputs[6]}} & {{ports.inputs[7]}});
 endmodule
