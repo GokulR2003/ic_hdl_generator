@@ -1,1 +1,69 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Category:    {{category}}
+// Subtype:     {{subtype}}
+// Family:      {{logic_family}}
+// Generated:   {{timestamp}}
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module {{module_name|default('IC_' + part_number)}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Bidirectional ports
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},  // VCC
+    input wire {{ports.power[1]}}   // GND
+);
+
+// ============================================================================
+// Parameters
+// ============================================================================
+// Gates Count:       {{parameters.gates_count}}
+// Propagation Delay: {{parameters.propagation_delay_ns}} ns
+// ============================================================================
+
+// ============================================================================
+// Inverter Implementations
+// ============================================================================
+// Function: Y = ~A
+// Truth Table:
+// A | Y
+// 0 | 1
+// 1 | 0
+// ============================================================================
+
+// Inverter 1
+assign {{ports.outputs[0]}} = ~{{ports.inputs[0]}};
+
+// Inverter 2
+assign {{ports.outputs[1]}} = ~{{ports.inputs[1]}};
+
+// Inverter 3
+assign {{ports.outputs[2]}} = ~{{ports.inputs[2]}};
+
+// Inverter 4
+assign {{ports.outputs[3]}} = ~{{ports.inputs[3]}};
+
+// Inverter 5
+assign {{ports.outputs[4]}} = ~{{ports.inputs[4]}};
+
+// Inverter 6
+assign {{ports.outputs[5]}} = ~{{ports.inputs[5]}};
+
+endmodule
