@@ -23,45 +23,74 @@ class WorkingGenerator:
     def load_metadata(self):
         with open('Ic_Metadata_Master.json', 'r') as f:
             return json.load(f)
-    
     def find_template_for_ic(self, ic_data):
-        """Find template file for an IC using multiple strategies"""
-        part = ic_data['part_number']
-        subtype = ic_data.get('subtype', '')
-        
-        # Strategy 1: Try exact part number template
-        template_paths = [
-            # Try by part number
-            f"verilog/combinational/basic_gates/IC_{part}.vtpl",
-            f"verilog/sequential/flip_flops/IC_{part}.vtpl",
-            f"verilog/sequential/counters/IC_{part}.vtpl",
-            
-            # Try by subtype from metadata template field
-            f"verilog/combinational/basic_gates/{ic_data.get('template', '')}.vtpl",
-            f"verilog/sequential/flip_flops/{ic_data.get('template', '')}.vtpl",
-            f"verilog/sequential/counters/{ic_data.get('template', '')}.vtpl",
-            
-            # Try by subtype
+    """Find template file for an IC using multiple strategies"""
+    part = ic_data['part_number']
+    subtype = ic_data.get('subtype', '')
+    template_name = ic_data.get('template', '')
+    
+    # List of possible template paths in order of priority
+    possible_paths = []
+    
+    # 1. Try by template name from metadata
+    if template_name:
+        possible_paths.extend([
+            f"verilog/combinational/basic_gates/{template_name}.vtpl",
+            f"verilog/combinational/decoders/{template_name}.vtpl",
+            f"verilog/combinational/multiplexers/{template_name}.vtpl",
+            f"verilog/combinational/encoders/{template_name}.vtpl",
+            f"verilog/combinational/special/{template_name}.vtpl",
+            f"verilog/sequential/flip_flops/{template_name}.vtpl",
+            f"verilog/sequential/counters/{template_name}.vtpl",
+            f"verilog/transceivers/{template_name}.vtpl",
+            f"verilog/special_analog/{template_name}.vtpl",
+            f"verilog/{template_name}.vtpl",
+        ])
+    
+    # 2. Try by subtype
+    if subtype:
+        possible_paths.extend([
             f"verilog/combinational/basic_gates/{subtype}.vtpl",
+            f"verilog/combinational/decoders/{subtype}.vtpl",
+            f"verilog/combinational/multiplexers/{subtype}.vtpl",
+            f"verilog/combinational/encoders/{subtype}.vtpl",
+            f"verilog/combinational/special/{subtype}.vtpl",
             f"verilog/sequential/flip_flops/{subtype}.vtpl",
             f"verilog/sequential/counters/{subtype}.vtpl",
-            
-            # Try generic locations
-            f"verilog/combinational/basic_gates/generic.vtpl",
-            f"verilog/generic.vtpl",
-        ]
-        
-        # Remove empty paths
-        template_paths = [p for p in template_paths if '.vtpl' in p and '//' not in p]
-        
-        # Try each path
-        for template_path in template_paths:
-            full_path = os.path.join(self.template_dir, template_path)
-            if os.path.exists(full_path):
-                return template_path
-        
-        return None
+            f"verilog/transceivers/{subtype}.vtpl",
+            f"verilog/special_analog/{subtype}.vtpl",
+            f"verilog/{subtype}.vtpl",
+        ])
     
+    # 3. Try by part number
+    possible_paths.extend([
+        f"verilog/combinational/basic_gates/IC_{part}.vtpl",
+        f"verilog/sequential/flip_flops/IC_{part}.vtpl",
+        f"verilog/sequential/counters/IC_{part}.vtpl",
+        f"verilog/transceivers/IC_{part}.vtpl",
+        f"verilog/special_analog/IC_{part}.vtpl",
+    ])
+    
+    # 4. Remove duplicates and empty paths
+    possible_paths = list(dict.fromkeys([p for p in possible_paths if p]))
+    
+    # Debug: Print search paths for specific ICs
+    debug_ics = ['74138', '74139', '74147', '74153', '7447', '7485', '74121', '74245', '555']
+    if part in debug_ics:
+        print(f"  Debug {part}: Searching {len(possible_paths)} paths...")
+        for i, path in enumerate(possible_paths[:5]):  # Show first 5
+            full_path = os.path.join(self.template_dir, path)
+            exists = "✓" if os.path.exists(full_path) else "✗"
+            print(f"    {i+1}. {exists} {path}")
+    
+    # Try each path
+    for template_path in possible_paths:
+        full_path = os.path.join(self.template_dir, template_path)
+        if os.path.exists(full_path):
+            return template_path
+    
+    # Fallback to generic
+    return "verilog/generic.vtpl"
     def generate_ic(self, part_number, output_dir='generated_verilog'):
         # Find IC
         ic = None
