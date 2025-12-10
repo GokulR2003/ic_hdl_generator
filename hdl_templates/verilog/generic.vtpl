@@ -1,1 +1,47 @@
+// ============================================================================
+// Generic template for {{part_number}} - {{ic_name}}
+// Generated: {{timestamp}}
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Bidirectional ports
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
+    
+    // Power ports
+    {% for power in ports.power %}
+    input wire {{power}},
+    {% endfor %}
+);
+
+// ============================================================================
+// Generic Implementation
+// ============================================================================
+// This is a generic template. Add specific logic based on IC function.
+// ============================================================================
+
+// Default: All outputs set to 0
+{% for output in ports.outputs %}
+assign {{output}} = 1'b0;
+{% endfor %}
+
+// Bidirectional pins as inputs
+{% for bidir in ports.bidirectional %}
+wire {{bidir}}_in;
+assign {{bidir}}_in = {{bidir}};
+{% endfor %}
+
+endmodule
