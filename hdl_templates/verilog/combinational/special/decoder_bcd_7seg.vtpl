@@ -1,0 +1,78 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Bidirectional ports
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+wire [3:0] bcd = { {{ports.inputs[3]}}, {{ports.inputs[2]}}, {{ports.inputs[1]}}, {{ports.inputs[0]}} };
+wire lamp_test = {{ports.inputs[4]}};
+wire ripple_blank_in = {{ports.inputs[5]}};
+
+reg [6:0] segments;
+reg ripple_blank_out;
+
+// Segment decoder for common anode
+always @(*) begin
+    if (!lamp_test) begin
+        segments = 7'b0000000;  // All segments on for lamp test
+    end
+    else if (!{{ports.bidirectional[0]}}) begin
+        segments = 7'b1111111;  // Blank display
+    end
+    else begin
+        case (bcd)
+            4'b0000: segments = 7'b0000001;  // 0
+            4'b0001: segments = 7'b1001111;  // 1
+            4'b0010: segments = 7'b0010010;  // 2
+            4'b0011: segments = 7'b0000110;  // 3
+            4'b0100: segments = 7'b1001100;  // 4
+            4'b0101: segments = 7'b0100100;  // 5
+            4'b0110: segments = 7'b0100000;  // 6
+            4'b0111: segments = 7'b0001111;  // 7
+            4'b1000: segments = 7'b0000000;  // 8
+            4'b1001: segments = 7'b0000100;  // 9
+            default: segments = 7'b1111111;  // Blank for invalid
+        endcase
+    end
+end
+
+// Ripple blanking
+always @(*) begin
+    ripple_blank_out = (bcd == 4'b0000) && !ripple_blank_in;
+end
+
+assign {{ports.outputs[0]}} = segments[0];  // a
+assign {{ports.outputs[1]}} = segments[1];  // b
+assign {{ports.outputs[2]}} = segments[2];  // c
+assign {{ports.outputs[3]}} = segments[3];  // d
+assign {{ports.outputs[4]}} = segments[4];  // e
+assign {{ports.outputs[5]}} = segments[5];  // f
+assign {{ports.outputs[6]}} = segments[6];  // g
+
+assign {{ports.bidirectional[0]}} = ripple_blank_out ? 1'b0 : 1'bz;
+
+endmodule
