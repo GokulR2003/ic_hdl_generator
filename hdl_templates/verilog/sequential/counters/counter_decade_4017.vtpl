@@ -1,0 +1,67 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output reg {{output}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+reg [3:0] count;
+reg carry;
+
+initial begin
+    count = 0;
+    carry = 0;
+end
+
+// Counter logic
+always @(posedge {{ports.inputs[0]}} or posedge {{ports.inputs[1]}}) begin
+    if ({{ports.inputs[1]}}) begin
+        count <= 0;
+        carry <= 0;
+    end
+    else if (!{{ports.inputs[2]}}) begin  // ENABLE active low
+        count <= count + 1;
+        if (count == 9) begin
+            count <= 0;
+            carry <= 1;
+        end
+        else begin
+            carry <= 0;
+        end
+    end
+end
+
+// Decoded outputs (one-hot)
+always @(*) begin
+    {{ports.outputs[0]}} = (count == 0);
+    {{ports.outputs[1]}} = (count == 1);
+    {{ports.outputs[2]}} = (count == 2);
+    {{ports.outputs[3]}} = (count == 3);
+    {{ports.outputs[4]}} = (count == 4);
+    {{ports.outputs[5]}} = (count == 5);
+    {{ports.outputs[6]}} = (count == 6);
+    {{ports.outputs[7]}} = (count == 7);
+    {{ports.outputs[8]}} = (count == 8);
+    {{ports.outputs[9]}} = (count == 9);
+    {{ports.outputs[10]}} = carry;
+end
+
+endmodule
