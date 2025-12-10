@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Working HDL Generator - Finds templates by part number or subtype
+Improved HDL Generator - Better template finding
 """
 
 import json
 import os
 import sys
+import argparse
 from datetime import datetime
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from jinja2 import Environment, FileSystemLoader
 
 class WorkingGenerator:
     def __init__(self):
@@ -18,80 +19,33 @@ class WorkingGenerator:
             trim_blocks=True,
             lstrip_blocks=True
         )
-        self.template_cache = {}  # Cache found templates
+        
+        # Build template map
+        self.template_map = self.build_template_map()
     
     def load_metadata(self):
         with open('Ic_Metadata_Master.json', 'r') as f:
             return json.load(f)
-    def find_template_for_ic(self, ic_data):
-    """Find template file for an IC using multiple strategies"""
-    part = ic_data['part_number']
-    subtype = ic_data.get('subtype', '')
-    template_name = ic_data.get('template', '')
     
-    # List of possible template paths in order of priority
-    possible_paths = []
+    def build_template_map(self):
+        """Map IC part numbers to their template paths"""
+        template_map = {}
+        
+        # Scan all templates
+        for root, dirs, files in os.walk(self.template_dir):
+            for file in files:
+                if file.endswith('.vtpl'):
+                    template_base = file.replace('.vtpl', '')
+                    
+                    # Find ICs that use this template
+                    for ic in self.metadata:
+                        if ic.get('template') == template_base:
+                            rel_path = os.path.relpath(os.path.join(root, file), self.template_dir)
+                            template_map[ic['part_number']] = rel_path
+        
+        return template_map
     
-    # 1. Try by template name from metadata
-    if template_name:
-        possible_paths.extend([
-            f"verilog/combinational/basic_gates/{template_name}.vtpl",
-            f"verilog/combinational/decoders/{template_name}.vtpl",
-            f"verilog/combinational/multiplexers/{template_name}.vtpl",
-            f"verilog/combinational/encoders/{template_name}.vtpl",
-            f"verilog/combinational/special/{template_name}.vtpl",
-            f"verilog/sequential/flip_flops/{template_name}.vtpl",
-            f"verilog/sequential/counters/{template_name}.vtpl",
-            f"verilog/transceivers/{template_name}.vtpl",
-            f"verilog/special_analog/{template_name}.vtpl",
-            f"verilog/{template_name}.vtpl",
-        ])
-    
-    # 2. Try by subtype
-    if subtype:
-        possible_paths.extend([
-            f"verilog/combinational/basic_gates/{subtype}.vtpl",
-            f"verilog/combinational/decoders/{subtype}.vtpl",
-            f"verilog/combinational/multiplexers/{subtype}.vtpl",
-            f"verilog/combinational/encoders/{subtype}.vtpl",
-            f"verilog/combinational/special/{subtype}.vtpl",
-            f"verilog/sequential/flip_flops/{subtype}.vtpl",
-            f"verilog/sequential/counters/{subtype}.vtpl",
-            f"verilog/transceivers/{subtype}.vtpl",
-            f"verilog/special_analog/{subtype}.vtpl",
-            f"verilog/{subtype}.vtpl",
-        ])
-    
-    # 3. Try by part number
-    possible_paths.extend([
-        f"verilog/combinational/basic_gates/IC_{part}.vtpl",
-        f"verilog/sequential/flip_flops/IC_{part}.vtpl",
-        f"verilog/sequential/counters/IC_{part}.vtpl",
-        f"verilog/transceivers/IC_{part}.vtpl",
-        f"verilog/special_analog/IC_{part}.vtpl",
-    ])
-    
-    # 4. Remove duplicates and empty paths
-    possible_paths = list(dict.fromkeys([p for p in possible_paths if p]))
-    
-    # Debug: Print search paths for specific ICs
-    debug_ics = ['74138', '74139', '74147', '74153', '7447', '7485', '74121', '74245', '555']
-    if part in debug_ics:
-        print(f"  Debug {part}: Searching {len(possible_paths)} paths...")
-        for i, path in enumerate(possible_paths[:5]):  # Show first 5
-            full_path = os.path.join(self.template_dir, path)
-            exists = "✓" if os.path.exists(full_path) else "✗"
-            print(f"    {i+1}. {exists} {path}")
-    
-    # Try each path
-    for template_path in possible_paths:
-        full_path = os.path.join(self.template_dir, template_path)
-        if os.path.exists(full_path):
-            return template_path
-    
-    # Fallback to generic
-    return "verilog/generic.vtpl"
-    def generate_ic(self, part_number, output_dir='generated_verilog'):
+    def generate_ic(self, part_number, output_dir='generated_verilog_fixed'):
         # Find IC
         ic = None
         for item in self.metadata:
@@ -104,8 +58,40 @@ class WorkingGenerator:
             return False
         
         print(f"\nGenerating {part_number} - {ic['ic_name']}")
-        print(f"  Subtype: {ic.get('subtype', 'N/A')}")
-        print(f"  Template field: {ic.get('template', 'N/A')}")
+        
+        # Find template
+        template_path = self.template_map.get(part_number)
+        
+        if not template_path:
+            # Try to find by template name
+            template_name = ic.get('template', '')
+            if template_name:
+                # Search in common directories
+                search_dirs = [
+                    'verilog/combinational/basic_gates',
+                    'verilog/combinational/decoders',
+                    'verilog/combinational/multiplexers',
+                    'verilog/combinational/encoders',
+                    'verilog/combinational/special',
+                    'verilog/sequential/flip_flops',
+                    'verilog/sequential/counters',
+                    'verilog/transceivers',
+                    'verilog/special_analog',
+                ]
+                
+                for search_dir in search_dirs:
+                    possible_path = f"{search_dir}/{template_name}.vtpl"
+                    full_path = os.path.join(self.template_dir, possible_path)
+                    if os.path.exists(full_path):
+                        template_path = possible_path
+                        self.template_map[part_number] = template_path
+                        break
+        
+        if template_path:
+            print(f"  ✓ Found template: {template_path}")
+        else:
+            print(f"  ✗ No template found, using generic")
+            template_path = "verilog/generic.vtpl"
         
         # Prepare data
         ic['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -115,24 +101,13 @@ class WorkingGenerator:
         ic['ports'].setdefault('bidirectional', [])
         ic['ports'].setdefault('power', ['VCC', 'GND'])
         
-        # Find template
-        template_path = self.find_template_for_ic(ic)
-        
-        if not template_path:
-            print(f"  ✗ ERROR: No template found!")
-            
-            # Create a simple fallback
-            code = self.create_fallback(ic)
-            if not code:
-                return False
-        else:
-            print(f"  ✓ Using template: {template_path}")
-            try:
-                template = self.env.get_template(template_path)
-                code = template.render(**ic)
-            except Exception as e:
-                print(f"  ✗ Template error: {e}")
-                code = self.create_fallback(ic)
+        # Render template
+        try:
+            template = self.env.get_template(template_path)
+            code = template.render(**ic)
+        except Exception as e:
+            print(f"  ✗ Template error: {e}")
+            return False
         
         # Save file
         os.makedirs(output_dir, exist_ok=True)
@@ -142,15 +117,7 @@ class WorkingGenerator:
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(code)
             
-            # Verify
             file_size = os.path.getsize(output_file)
-            if file_size == 0:
-                print(f"  ✗ WARNING: File is empty (0 bytes)!")
-                # Add some content
-                with open(output_file, 'a') as f:
-                    f.write(f"\n// Auto-generated placeholder for {part_number}\n")
-                file_size = os.path.getsize(output_file)
-            
             print(f"  ✓ Saved: {output_file} ({file_size} bytes)")
             return True
             
@@ -158,60 +125,7 @@ class WorkingGenerator:
             print(f"  ✗ File write error: {e}")
             return False
     
-    def create_fallback(self, ic_data):
-        """Create fallback Verilog when template is missing"""
-        part = ic_data['part_number']
-        ports = ic_data['ports']
-        
-        code = f"""// ============================================================
-// Auto-generated HDL (FALLBACK - No template found)
-// Part: {part} - {ic_data['ic_name']}
-// Generated: {ic_data['timestamp']}
-// WARNING: This is a fallback implementation
-// ============================================================
-
-`timescale 1ns / 1ps
-
-module IC_{part}(
-"""
-        
-        # Add inputs
-        for inp in ports['inputs']:
-            code += f"    input wire {inp},\n"
-        
-        # Add outputs
-        for i, outp in enumerate(ports['outputs']):
-            comma = ',' if (i < len(ports['outputs']) - 1 or ports['bidirectional']) else ''
-            code += f"    output wire {outp}{comma}\n"
-        
-        # Add bidirectional
-        for i, bidir in enumerate(ports['bidirectional']):
-            comma = ',' if i < len(ports['bidirectional']) - 1 else ''
-            code += f"    inout wire {bidir}{comma}\n"
-        
-        # Add power
-        if ports['power']:
-            for i, power in enumerate(ports['power']):
-                comma = ',' if i < len(ports['power']) - 1 else ''
-                code += f"    input wire {power}{comma}\n"
-        
-        code += ");\n\n"
-        code += "    // ============================================================\n"
-        code += "    // FALLBACK IMPLEMENTATION\n"
-        code += "    // This was generated because no template was found\n"
-        code += "    // ============================================================\n\n"
-        
-        # Simple implementation
-        if ports['outputs']:
-            code += "    // All outputs tied low\n"
-            for outp in ports['outputs']:
-                code += f"    assign {outp} = 1'b0;\n"
-        
-        code += "\nendmodule\n"
-        
-        return code
-    
-    def generate_all(self, output_dir='generated_verilog'):
+    def generate_all(self, output_dir='generated_verilog_fixed'):
         print("Generating ALL ICs")
         print("=" * 60)
         
@@ -225,55 +139,37 @@ module IC_{part}(
                 success += 1
         
         print("\n" + "=" * 60)
-        print(f"SUMMARY: {success}/{total} ICs generated successfully")
+        print(f"SUMMARY: {success}/{total} ICs generated")
         
-        # List generated files
-        if os.path.exists(output_dir):
-            files = [f for f in os.listdir(output_dir) if f.endswith('.v')]
-            print(f"\nGenerated {len(files)} files in {output_dir}/")
-            
-            # Check for empty files
-            empty_files = []
-            for file in files:
-                filepath = os.path.join(output_dir, file)
-                if os.path.getsize(filepath) == 0:
-                    empty_files.append(file)
-            
-            if empty_files:
-                print(f"WARNING: {len(empty_files)} empty files:")
-                for file in empty_files:
-                    print(f"  {file}")
+        # Show template usage
+        print("\nTemplate usage summary:")
+        for part, template in sorted(self.template_map.items()):
+            print(f"  {part}: {template}")
     
-    def list_ics_with_templates(self):
-        print("ICs and their template status:")
+    def list_ics(self):
+        print("ICs with template status:")
         print("=" * 60)
         
         for ic in self.metadata:
             part = ic['part_number']
             name = ic['ic_name']
-            template_path = self.find_template_for_ic(ic)
+            template = self.template_map.get(part, "NOT FOUND")
             
-            if template_path:
-                status = "✓"
-            else:
-                status = "✗"
-            
+            status = "✓" if template != "NOT FOUND" else "✗"
             print(f"{status} {part:8} - {name:40}")
 
 def main():
-    import argparse
-    
     parser = argparse.ArgumentParser(description='Working HDL Generator')
     parser.add_argument('command', choices=['generate', 'generate-all', 'list'])
     parser.add_argument('part_number', nargs='?', help='IC part number')
-    parser.add_argument('--output-dir', default='generated_verilog')
+    parser.add_argument('--output-dir', default='generated_verilog_fixed')
     
     args = parser.parse_args()
     
     generator = WorkingGenerator()
     
     if args.command == 'list':
-        generator.list_ics_with_templates()
+        generator.list_ics()
     
     elif args.command == 'generate':
         if not args.part_number:
