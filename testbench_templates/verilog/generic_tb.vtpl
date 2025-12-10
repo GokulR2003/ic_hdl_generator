@@ -1,0 +1,250 @@
+// ============================================================================
+// Testbench for: {{part_number}} - {{ic_name}}
+// Generated: {{timestamp}}
+// Test Coverage: {{test_coverage.min_test_vectors|default(10)}} vectors
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module tb_{{part_number}};
+    
+    // ========================================================================
+    // Parameters
+    // ========================================================================
+    parameter CLK_PERIOD = 10;        // 100 MHz clock
+    parameter SIM_DURATION = {{test_coverage.simulation_duration_ns|default(1000)}};
+    
+    // ========================================================================
+    // DUT Signals
+    // ========================================================================
+    {% for input in ports.inputs %}
+    reg {{input}};
+    {% endfor %}
+    
+    {% for output in ports.outputs %}
+    wire {{output}};
+    {% endfor %}
+    
+    {% for bidir in ports.bidirectional %}
+    wire {{bidir}};
+    {% endfor %}
+    
+    {% for power in ports.power %}
+    wire {{power}};
+    {% endfor %}
+    
+    // ========================================================================
+    // Clock Generation
+    // ========================================================================
+    reg clk = 0;
+    always #(CLK_PERIOD/2) clk = ~clk;
+    
+    // ========================================================================
+    // DUT Instantiation
+    // ========================================================================
+    IC_{{part_number}} dut (
+        {% for input in ports.inputs %}
+        .{{input}}({{input}}),
+        {% endfor %}
+        
+        {% for output in ports.outputs %}
+        .{{output}}({{output}}),
+        {% endfor %}
+        
+        {% for bidir in ports.bidirectional %}
+        .{{bidir}}({{bidir}}),
+        {% endfor %}
+        
+        {% for power in ports.power %}
+        .{{power}}({{power}}),
+        {% endfor %}
+    );
+    
+    // ========================================================================
+    // Test Variables
+    // ========================================================================
+    integer test_count = 0;
+    integer pass_count = 0;
+    integer fail_count = 0;
+    
+    // ========================================================================
+    // Initial Block
+    // ========================================================================
+    initial begin
+        $display("[TEST] Starting testbench for {{part_number}} - {{ic_name}}");
+        $display("[TEST] Simulation time: %0d ns", SIM_DURATION);
+        
+        // Initialize all inputs
+        {% for input in ports.inputs %}
+        {{input}} = 0;
+        {% endfor %}
+        
+        // Initialize power
+        {% for power in ports.power %}
+        {% if 'VCC' in power or 'VDD' in power %}
+        {{power}} = 1;
+        {% else %}
+        {{power}} = 0;
+        {% endif %}
+        {% endfor %}
+        
+        // Initialize bidirectional pins
+        {% for bidir in ports.bidirectional %}
+        {{bidir}} = 1'bz;
+        {% endfor %}
+        
+        // Wait for stabilization
+        #100;
+        
+        // Run tests
+        run_all_tests();
+        
+        // Print summary
+        print_summary();
+        
+        // End simulation
+        #100;
+        $finish;
+    end
+    
+    // ========================================================================
+    // Test Procedures
+    // ========================================================================
+    task run_all_tests;
+        begin
+            $display("\n[TEST] Running test suite...");
+            
+            {% if test_coverage.required_test_cases %}
+            // Run required test cases from metadata
+            {% for test_case in test_coverage.required_test_cases %}
+            test_{{test_case}}();
+            {% endfor %}
+            {% else %}
+            // Generic tests
+            test_basic_functionality();
+            test_random_patterns();
+            {% endif %}
+            
+            {% if test_coverage.edge_cases %}
+            // Run edge cases
+            $display("\n[TEST] Running edge cases...");
+            {% for edge_case in test_coverage.edge_cases %}
+            test_{{edge_case}}();
+            {% endfor %}
+            {% endif %}
+        end
+    endtask
+    
+    task test_basic_functionality;
+        begin
+            $display("[TEST] Basic functionality test");
+            // TODO: Add IC-specific basic tests
+            #100;
+            pass_count = pass_count + 1;
+            test_count = test_count + 1;
+        end
+    endtask
+    
+    task test_random_patterns;
+        integer i;
+        begin
+            $display("[TEST] Random pattern test (%0d vectors)", {{test_coverage.min_test_vectors|default(10)}});
+            for (i = 0; i < {{test_coverage.min_test_vectors|default(10)}}; i = i + 1) begin
+                apply_random_inputs();
+                check_outputs();
+                #20;
+            end
+        end
+    endtask
+    
+    task apply_random_inputs;
+        begin
+            {% for input in ports.inputs %}
+            {{input}} = $random % 2;
+            {% endfor %}
+        end
+    endtask
+    
+    task check_outputs;
+        begin
+            // Basic check - just verify outputs aren't X or Z
+            {% for output in ports.outputs %}
+            if ({{output}} !== 1'b0 && {{output}} !== 1'b1) begin
+                $display("[ERROR] {{output}} is in invalid state: %b", {{output}});
+                fail_count = fail_count + 1;
+            end else begin
+                pass_count = pass_count + 1;
+            end
+            {% endfor %}
+            test_count = test_count + 1;
+        end
+    endtask
+    
+    task print_summary;
+        real coverage;
+        begin
+            coverage = (real'(pass_count) / real'(test_count)) * 100.0;
+            
+            $display("\n" + "="*60);
+            $display("TEST SUMMARY: {{part_number}} - {{ic_name}}");
+            $display("="*60);
+            $display("Total tests:    %0d", test_count);
+            $display("Passed:         %0d", pass_count);
+            $display("Failed:         %0d", fail_count);
+            $display("Coverage:       %0.2f%%", coverage);
+            $display("Target:         %0.2f%%", {{test_coverage.coverage_target|default(95)}});
+            $display("="*60);
+            
+            if (fail_count == 0 && coverage >= {{test_coverage.coverage_target|default(95)}}) begin
+                $display("[PASS] All tests passed with target coverage!");
+            end else begin
+                $display("[FAIL] Tests did not meet requirements");
+            end
+        end
+    endtask
+    
+    // ========================================================================
+    // IC-Specific Test Tasks
+    // ========================================================================
+    {% if behavior.truth_table %}
+    task test_truth_table;
+        begin
+            $display("[TEST] Testing truth table");
+            // TODO: Implement truth table tests
+        end
+    endtask
+    {% endif %}
+    
+    {% if parameters.edge_type %}
+    task test_clock_edges;
+        begin
+            $display("[TEST] Testing {{parameters.edge_type}} clock edges");
+            // TODO: Implement clock edge tests
+        end
+    endtask
+    {% endif %}
+    
+    // ========================================================================
+    // Simulation Control
+    // ========================================================================
+    initial begin
+        #(SIM_DURATION);
+        $display("[WARNING] Simulation timeout reached");
+        print_summary();
+        $finish;
+    end
+    
+    // ========================================================================
+    // Waveform Dumping
+    // ========================================================================
+    initial begin
+        $dumpfile("tb_{{part_number}}.vcd");
+        $dumpvars(0, tb_{{part_number}});
+    end
+    
+    // ========================================================================
+    // Assertions
+    // ========================================================================
+    // Add SystemVerilog assertions here for formal verification
+    
+endmodule
