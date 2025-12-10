@@ -1,0 +1,42 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+wire [3:0] A = { {{ports.inputs[3]}}, {{ports.inputs[2]}}, {{ports.inputs[1]}}, {{ports.inputs[0]}} };
+wire [3:0] B = { {{ports.inputs[7]}}, {{ports.inputs[6]}}, {{ports.inputs[5]}}, {{ports.inputs[4]}} };
+
+wire A_gt_B_in = {{ports.inputs[8]}};
+wire A_eq_B_in = {{ports.inputs[9]}};
+wire A_lt_B_in = {{ports.inputs[10]}};
+
+// Comparison logic
+wire gt = (A > B) || ((A == B) && A_gt_B_in);
+wire eq = (A == B) && A_eq_B_in;
+wire lt = (A < B) || ((A == B) && A_lt_B_in);
+
+assign {{ports.outputs[0]}} = gt;  // A_GT_B
+assign {{ports.outputs[1]}} = eq;  // A_EQ_B
+assign {{ports.outputs[2]}} = lt;  // A_LT_B
+
+endmodule
