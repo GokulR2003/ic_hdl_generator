@@ -1,0 +1,170 @@
+// ============================================================================
+// Testbench for: {{part_number}} - {{ic_name}}
+// Generated: {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module tb_{{part_number}};
+    
+    // Parameters
+    parameter CLK_PERIOD = 10;
+    parameter SIM_DURATION = 1000;
+    
+    // DUT Signals
+    reg A1, B1, A2, B2, A3, B3, A4, B4;
+    wire Y1, Y2, Y3, Y4;
+    wire VCC, GND;
+    
+    // DUT
+    IC_{{part_number}} dut (
+        .A1(A1), .B1(B1), .A2(A2), .B2(B2),
+        .A3(A3), .B3(B3), .A4(A4), .B4(B4),
+        .Y1(Y1), .Y2(Y2), .Y3(Y3), .Y4(Y4),
+        .VCC(VCC), .GND(GND)
+    );
+    
+    // Test variables
+    integer test_count = 0;
+    integer pass_count = 0;
+    
+    initial begin
+        $display("[TEST] Starting testbench for {{part_number}} - Quad 2-Input NAND");
+        
+        // Initialize
+        {A1, B1, A2, B2, A3, B3, A4, B4} = 0;
+        VCC = 1;
+        GND = 0;
+        #100;
+        
+        // Test all NAND gate truth tables
+        test_nand_truth_table();
+        
+        // Test random patterns
+        test_random_patterns(50);
+        
+        // Print summary
+        print_summary();
+        
+        #100;
+        $finish;
+    end
+    
+    task test_nand_truth_table;
+        begin
+            $display("[TEST] Testing NAND gate truth table (all 4 gates)");
+            
+            // Gate 1 tests
+            test_gate(1, A1, B1, Y1);
+            test_gate(2, A2, B2, Y2);
+            test_gate(3, A3, B3, Y3);
+            test_gate(4, A4, B4, Y4);
+        end
+    endtask
+    
+    task test_gate;
+        input integer gate_num;
+        input reg gate_a, gate_b;
+        input wire gate_y;
+        
+        reg expected;
+        begin
+            $display("[TEST] Testing Gate %0d", gate_num);
+            
+            // Test all 4 input combinations
+            {gate_a, gate_b} = 2'b00; #10;
+            expected = ~(gate_a & gate_b);
+            check_output(gate_num, "00", gate_y, expected);
+            
+            {gate_a, gate_b} = 2'b01; #10;
+            expected = ~(gate_a & gate_b);
+            check_output(gate_num, "01", gate_y, expected);
+            
+            {gate_a, gate_b} = 2'b10; #10;
+            expected = ~(gate_a & gate_b);
+            check_output(gate_num, "10", gate_y, expected);
+            
+            {gate_a, gate_b} = 2'b11; #10;
+            expected = ~(gate_a & gate_b);
+            check_output(gate_num, "11", gate_y, expected);
+        end
+    endtask
+    
+    task check_output;
+        input integer gate_num;
+        input [1:0] input_pattern;
+        input wire actual;
+        input expected;
+        
+        begin
+            test_count = test_count + 1;
+            if (actual === expected) begin
+                $display("  Gate %0d: Input %b -> Output %b (PASS)", 
+                        gate_num, input_pattern, actual);
+                pass_count = pass_count + 1;
+            end else begin
+                $display("  Gate %0d: Input %b -> Output %b, Expected %b (FAIL)", 
+                        gate_num, input_pattern, actual, expected);
+            end
+        end
+    endtask
+    
+    task test_random_patterns;
+        input integer num_patterns;
+        integer i;
+        
+        begin
+            $display("[TEST] Testing %0d random patterns", num_patterns);
+            
+            for (i = 0; i < num_patterns; i = i + 1) begin
+                {A1, B1, A2, B2, A3, B3, A4, B4} = $random;
+                #20;
+                
+                // Check all gates
+                if (Y1 !== ~(A1 & B1)) $display("  Gate 1 failed on pattern %0d", i);
+                if (Y2 !== ~(A2 & B2)) $display("  Gate 2 failed on pattern %0d", i);
+                if (Y3 !== ~(A3 & B3)) $display("  Gate 3 failed on pattern %0d", i);
+                if (Y4 !== ~(A4 & B4)) $display("  Gate 4 failed on pattern %0d", i);
+                
+                test_count = test_count + 1;
+                pass_count = pass_count + 1;
+            end
+        end
+    endtask
+    
+    task print_summary;
+        real coverage;
+        begin
+            coverage = (real'(pass_count) / real'(test_count)) * 100.0;
+            
+            $display("\n" + "="*60);
+            $display("TEST SUMMARY: {{part_number}} - Quad NAND");
+            $display("="*60);
+            $display("Total tests:    %0d", test_count);
+            $display("Passed:         %0d", pass_count);
+            $display("Coverage:       %0.2f%%", coverage);
+            $display("="*60);
+            
+            if (coverage >= 95.0) begin
+                $display("[PASS] All tests passed!");
+            end else begin
+                $display("[FAIL] Coverage below target");
+            end
+        end
+    endtask
+    
+    // Simulation timeout
+    initial begin
+        #(SIM_DURATION);
+        $display("[TIMEOUT] Simulation time exceeded");
+        print_summary();
+        $finish;
+    end
+    
+    // Waveform dump
+    initial begin
+        $dumpfile("tb_{{part_number}}.vcd");
+        $dumpvars(0, tb_{{part_number}});
+    end
+    
+endmodule
