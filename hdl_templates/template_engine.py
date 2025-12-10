@@ -1,41 +1,23 @@
 #!/usr/bin/env python3
 """
-HDL Template Engine - Fixed Version
+Simple but working HDL Generator
 """
 
 import json
 import os
 import sys
-import argparse
 from datetime import datetime
-from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
 
-try:
-    from jinja2 import Environment, FileSystemLoader, TemplateNotFound
-    JINJA2_AVAILABLE = True
-except ImportError:
-    print("Error: Jinja2 is required. Install with: pip install jinja2")
-    sys.exit(1)
-
-class HDLGenerator:
-    def __init__(self, metadata_file='Ic_Metadata_Master.json', 
-                 template_dir='hdl_templates'):
-        self.metadata_file = metadata_file
-        self.template_dir = Path(template_dir)
+class SimpleHDLGenerator:
+    def __init__(self):
         self.metadata = self.load_metadata()
-        self.env = Environment(
-            loader=FileSystemLoader(self.template_dir),
-            trim_blocks=True,
-            lstrip_blocks=True
-        )
+        self.template_dir = 'hdl_templates'
+        self.env = Environment(loader=FileSystemLoader(self.template_dir))
         
     def load_metadata(self):
-        try:
-            with open(self.metadata_file, 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"Error loading metadata: {e}")
-            return []
+        with open('Ic_Metadata_Master.json', 'r') as f:
+            return json.load(f)
     
     def find_ic(self, part_number):
         for ic in self.metadata:
@@ -43,206 +25,127 @@ class HDLGenerator:
                 return ic
         return None
     
-    def generate_hdl(self, part_number, language='verilog', output_dir=None):
-        ic_data = self.find_ic(part_number)
-        if not ic_data:
+    def generate(self, part_number, output_dir='generated_verilog'):
+        ic = self.find_ic(part_number)
+        if not ic:
             print(f"Error: IC {part_number} not found")
-            return None
+            return False
         
-        # Ensure all required fields exist
-        ic_data.setdefault('ports', {})
-        ic_data['ports'].setdefault('inputs', [])
-        ic_data['ports'].setdefault('outputs', [])
-        ic_data['ports'].setdefault('bidirectional', [])
-        ic_data['ports'].setdefault('power', ['VCC', 'GND'])
-        ic_data.setdefault('template', ic_data.get('subtype', 'generic'))
+        # Prepare data
+        ic['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        # Add generation info
-        ic_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Ensure all fields exist
+        ic.setdefault('ports', {})
+        ic['ports'].setdefault('inputs', [])
+        ic['ports'].setdefault('outputs', [])
+        ic['ports'].setdefault('bidirectional', [])
+        ic['ports'].setdefault('power', ['VCC', 'GND'])
         
-        # Determine template path
-        template_name = ic_data['template']
-        if language == 'verilog':
-            template_ext = '.vtpl'
-        else:
-            template_ext = '.vhdltpl'
+        # Determine template
+        subtype = ic.get('subtype', 'generic')
         
         # Try to find template
         template_paths = [
-            f"verilog/combinational/basic_gates/{template_name}{template_ext}",
-            f"verilog/combinational/{template_name}{template_ext}",
-            f"verilog/{template_name}{template_ext}",
-            f"verilog/generic{template_ext}",
+            f"verilog/combinational/basic_gates/{subtype}.vtpl",
+            f"verilog/combinational/decoders/{subtype}.vtpl",
+            f"verilog/combinational/multiplexers/{subtype}.vtpl",
+            f"verilog/combinational/encoders/{subtype}.vtpl",
+            f"verilog/combinational/special/{subtype}.vtpl",
+            f"verilog/sequential/flip_flops/{subtype}.vtpl",
+            f"verilog/sequential/counters/{subtype}.vtpl",
+            f"verilog/transceivers/{subtype}.vtpl",
+            f"verilog/special_analog/{subtype}.vtpl",
+            f"verilog/generic.vtpl"
         ]
         
-        template_content = None
+        template = None
+        template_used = None
+        
         for path in template_paths:
-            full_path = self.template_dir / path
-            if full_path.exists():
+            full_path = os.path.join(self.template_dir, path)
+            if os.path.exists(full_path):
                 try:
                     template = self.env.get_template(path)
-                    template_content = template.render(**ic_data)
-                    print(f"Used template: {path}")
+                    template_used = path
                     break
-                except Exception as e:
-                    print(f"Error rendering template {path}: {e}")
+                except:
+                    continue
         
-        # If no template found, use fallback
-        if template_content is None:
-            print(f"Warning: No template found for {template_name}, using fallback")
-            template_content = self.generate_fallback(ic_data, language)
+        if not template:
+            print(f"Error: No template found for {subtype}")
+            return False
         
-        # Save to file
-        if output_dir:
-            output_dir = Path(output_dir)
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            if language == 'verilog':
-                filename = f"IC_{part_number}.v"
-            else:
-                filename = f"IC_{part_number}.vhd"
-            
-            filepath = output_dir / filename
-            
-            try:
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    f.write(template_content)
-                print(f"Successfully generated: {filepath}")
-                print(f"File size: {len(template_content)} bytes")
-            except Exception as e:
-                print(f"Error writing file: {e}")
+        # Generate code
+        try:
+            code = template.render(**ic)
+        except Exception as e:
+            print(f"Error rendering template: {e}")
+            return False
         
-        return template_content
+        # Save file
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = os.path.join(output_dir, f"IC_{part_number}.v")
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(code)
+        
+        print(f"✓ Generated: {output_file} (using {template_used})")
+        return True
     
-    def generate_fallback(self, ic_data, language):
-        """Generate fallback HDL when template is missing"""
-        part_number = ic_data['part_number']
-        ports = ic_data['ports']
-        
-        if language == 'verilog':
-            code = f"""// Auto-generated fallback for {part_number}
-// This is a fallback implementation
-
-`timescale 1ns / 1ps
-
-module IC_{part_number}(
-"""
-            # Add inputs
-            for inp in ports['inputs']:
-                code += f"    input wire {inp},\n"
-            
-            # Add outputs
-            for i, outp in enumerate(ports['outputs']):
-                if i == len(ports['outputs']) - 1 and not ports['bidirectional']:
-                    code += f"    output wire {outp}\n"
-                else:
-                    code += f"    output wire {outp},\n"
-            
-            # Add bidirectional
-            for i, bidir in enumerate(ports['bidirectional']):
-                if i == len(ports['bidirectional']) - 1:
-                    code += f"    inout wire {bidir}\n"
-                else:
-                    code += f"    inout wire {bidir},\n"
-            
-            # Add power
-            if ports['power']:
-                code += "    // Power pins\n"
-                for power in ports['power']:
-                    code += f"    input wire {power},\n"
-                code = code.rstrip(',\n') + "\n"
-            
-            code += ");\n\n"
-            code += "    // Fallback implementation - all outputs tied to 0\n"
-            for outp in ports['outputs']:
-                code += f"    assign {outp} = 1'b0;\n"
-            
-            code += "\nendmodule\n"
-        else:
-            # VHDL fallback
-            code = f"""-- Auto-generated fallback for {part_number}
--- This is a fallback implementation
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
-entity IC_{part_number} is
-    Port (
-"""
-            # Add all ports...
-            code += "    );\nend IC_{part_number};\n\n"
-            code += "architecture Behavioral of IC_{part_number} is\nbegin\n    -- Fallback\nend Behavioral;\n"
-        
-        return code
-    
-    def generate_all(self, language='verilog', output_dir=None):
-        if output_dir is None:
-            output_dir = f"generated_{language}"
+    def generate_all(self, output_dir='generated_verilog'):
+        print(f"Generating all ICs to {output_dir}/")
+        print("=" * 60)
         
         success = 0
         total = len(self.metadata)
-        
-        print(f"Generating {language.upper()} for {total} ICs...")
-        print("=" * 60)
         
         for ic in self.metadata:
             part = ic['part_number']
             name = ic['ic_name']
             
-            try:
-                self.generate_hdl(part, language, output_dir)
-                print(f"✓ {part}: {name}")
+            if self.generate(part, output_dir):
                 success += 1
-            except Exception as e:
-                print(f"✗ {part}: Error - {e}")
+                print(f"  {part}: {name}")
+            else:
+                print(f"✗ {part}: FAILED - {name}")
         
         print("=" * 60)
-        print(f"Generated {success}/{total} ICs successfully")
+        print(f"Successfully generated: {success}/{total} ICs")
     
-    def list_ics(self):
+    def list_all(self):
         print("\nAvailable ICs:")
         print("=" * 60)
         
-        for ic in sorted(self.metadata, key=lambda x: x['part_number']):
+        for ic in self.metadata:
             print(f"{ic['part_number']:8} - {ic['ic_name']}")
         
         print(f"\nTotal: {len(self.metadata)} ICs")
 
 def main():
+    import argparse
+    
     parser = argparse.ArgumentParser(description='Generate HDL from IC metadata')
-    subparsers = parser.add_subparsers(dest='command', help='Command')
-    
-    # Generate command
-    gen_parser = subparsers.add_parser('generate', help='Generate HDL for IC')
-    gen_parser.add_argument('part_number', help='IC part number')
-    gen_parser.add_argument('--language', choices=['verilog', 'vhdl'], default='verilog')
-    gen_parser.add_argument('--output-dir', default='generated_verilog')
-    
-    # Generate all command
-    all_parser = subparsers.add_parser('generate-all', help='Generate all ICs')
-    all_parser.add_argument('--language', choices=['verilog', 'vhdl'], default='verilog')
-    all_parser.add_argument('--output-dir')
-    
-    # List command
-    subparsers.add_parser('list', help='List all ICs')
+    parser.add_argument('command', choices=['generate', 'generate-all', 'list'], 
+                       help='Command to execute')
+    parser.add_argument('part_number', nargs='?', help='IC part number')
+    parser.add_argument('--output-dir', default='generated_verilog', 
+                       help='Output directory')
     
     args = parser.parse_args()
     
-    if not args.command:
-        parser.print_help()
-        return
+    generator = SimpleHDLGenerator()
     
-    generator = HDLGenerator()
+    if args.command == 'list':
+        generator.list_all()
     
-    if args.command == 'generate':
-        generator.generate_hdl(args.part_number, args.language, args.output_dir)
+    elif args.command == 'generate':
+        if not args.part_number:
+            print("Error: Part number required")
+            return
+        generator.generate(args.part_number, args.output_dir)
     
     elif args.command == 'generate-all':
-        output_dir = args.output_dir or f"generated_{args.language}"
-        generator.generate_all(args.language, output_dir)
-    
-    elif args.command == 'list':
-        generator.list_ics()
+        generator.generate_all(args.output_dir)
 
 if __name__ == '__main__':
     main()
