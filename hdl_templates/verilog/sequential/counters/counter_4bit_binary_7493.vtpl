@@ -1,0 +1,50 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output reg {{output}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+reg [3:0] count;
+
+// Async reset
+always @(*) begin
+    if ({{ports.inputs[0]}} && {{ports.inputs[1]}}) begin
+        count = 4'b0000;
+    end
+end
+
+// Counter logic
+always @(negedge {{ports.inputs[2]}} or negedge {{ports.inputs[3]}}) begin
+    if (!({{ports.inputs[0]}} && {{ports.inputs[1]}})) begin
+        if ({{ports.inputs[2]}} === 1'b0) begin  // CLK_A
+            count <= count + 1;
+            if (count == 15) count <= 0;
+        end
+    end
+end
+
+assign {{ports.outputs[0]}} = count[0];  // QA
+assign {{ports.outputs[1]}} = count[1];  // QB
+assign {{ports.outputs[2]}} = count[2];  // QC
+assign {{ports.outputs[3]}} = count[3];  // QD
+
+endmodule
