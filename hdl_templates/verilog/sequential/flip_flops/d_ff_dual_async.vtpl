@@ -2,15 +2,12 @@
 // Auto-generated HDL from IC Metadata
 // Part Number: {{part_number}}
 // IC Name:     {{ic_name}}
-// Category:    {{category}}
-// Subtype:     {{subtype}}
-// Family:      {{logic_family}}
 // Generated:   {{timestamp}}
 // ============================================================================
 
 `timescale 1ns / 1ps
 
-module {{module_name|default('IC_' + part_number)}}(
+module IC_{{part_number}}(
     // Input ports
     {% for input in ports.inputs %}
     input wire {{input}},
@@ -21,74 +18,39 @@ module {{module_name|default('IC_' + part_number)}}(
     output reg {{output}},
     {% endfor %}
     
-    // Bidirectional ports
-    {% for bidir in ports.bidirectional %}
-    inout wire {{bidir}},
-    {% endfor %}
-    
     // Power ports
-    input wire {{ports.power[0]}},  // VCC
-    input wire {{ports.power[1]}}   // GND
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
 );
 
-// ============================================================================
-// Parameters
-// ============================================================================
-// Flip-Flops Count:      {{parameters.flip_flops_count}}
-// Edge Type:             {{parameters.edge_type}}
-// Preset:                {{parameters.preset}}
-// Clear:                 {{parameters.clear}}
-// Setup Time:            {{parameters.setup_time_ns}} ns
-// Hold Time:             {{parameters.hold_time_ns}} ns
-// Propagation Delay:     {{parameters.propagation_delay_ns}} ns
-// ============================================================================
-
-// ============================================================================
-// HDL Generation Notes
-// ============================================================================
-// {{hdl_generation_notes.timing_limitations|default('')}}
-// {{hdl_generation_notes.async_behavior|default('')}}
-// {{hdl_generation_notes.synthesis_notes|default('')}}
-// ============================================================================
-
-// ============================================================================
-// D Flip-Flop 1 with Async Preset/Clear
-// ============================================================================
+// D Flip-Flop 1
 always @(posedge {{ports.inputs[1]}} or negedge {{ports.inputs[2]}} or negedge {{ports.inputs[3]}}) begin
     if (!{{ports.inputs[2]}}) begin
-        // Async Preset (active low)
-        {{ports.outputs[0]}} <= 1'b1;
+        {{ports.outputs[0]}} <= 1'b1;  // Preset
         {{ports.outputs[1]}} <= 1'b0;
     end
     else if (!{{ports.inputs[3]}}) begin
-        // Async Clear (active low)
-        {{ports.outputs[0]}} <= 1'b0;
+        {{ports.outputs[0]}} <= 1'b0;  // Clear
         {{ports.outputs[1]}} <= 1'b1;
     end
-    else if ({{ports.inputs[2]}} && {{ports.inputs[3]}}) begin
-        // Normal operation on clock edge
-        {{ports.outputs[0]}} <= {{ports.inputs[0]}};
+    else begin
+        {{ports.outputs[0]}} <= {{ports.inputs[0]}};  // Data
         {{ports.outputs[1]}} <= ~{{ports.inputs[0]}};
     end
 end
 
-// ============================================================================
-// D Flip-Flop 2 with Async Preset/Clear
-// ============================================================================
+// D Flip-Flop 2
 always @(posedge {{ports.inputs[5]}} or negedge {{ports.inputs[6]}} or negedge {{ports.inputs[7]}}) begin
     if (!{{ports.inputs[6]}}) begin
-        // Async Preset (active low)
-        {{ports.outputs[2]}} <= 1'b1;
+        {{ports.outputs[2]}} <= 1'b1;  // Preset
         {{ports.outputs[3]}} <= 1'b0;
     end
     else if (!{{ports.inputs[7]}}) begin
-        // Async Clear (active low)
-        {{ports.outputs[2]}} <= 1'b0;
+        {{ports.outputs[2]}} <= 1'b0;  // Clear
         {{ports.outputs[3]}} <= 1'b1;
     end
-    else if ({{ports.inputs[6]}} && {{ports.inputs[7]}}) begin
-        // Normal operation on clock edge
-        {{ports.outputs[2]}} <= {{ports.inputs[4]}};
+    else begin
+        {{ports.outputs[2]}} <= {{ports.inputs[4]}};  // Data
         {{ports.outputs[3]}} <= ~{{ports.inputs[4]}};
     end
 end
