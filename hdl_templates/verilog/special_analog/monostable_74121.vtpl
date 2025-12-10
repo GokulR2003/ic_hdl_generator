@@ -1,1 +1,64 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
+// WARNING: Behavioral model only - not synthesizable
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output reg {{output}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+// Behavioral model parameters
+parameter PULSE_WIDTH = 100;  // 100ns default pulse width
+reg pulse_active;
+time trigger_time;
+
+initial begin
+    {{ports.outputs[0]}} = 1'b0;  // Q
+    {{ports.outputs[1]}} = 1'b1;  // Q_n
+    pulse_active = 0;
+end
+
+// Trigger detection
+always @(negedge {{ports.inputs[0]}} or negedge {{ports.inputs[1]}} or posedge {{ports.inputs[2]}}) begin
+    if (!{{ports.inputs[3]}}) begin  // Reset
+        {{ports.outputs[0]}} <= 1'b0;
+        {{ports.outputs[1]}} <= 1'b1;
+        pulse_active <= 0;
+    end
+    else if ((!{{ports.inputs[0]}} || !{{ports.inputs[1]}}) && {{ports.inputs[2]}}) begin
+        // Trigger condition
+        {{ports.outputs[0]}} <= 1'b1;
+        {{ports.outputs[1]}} <= 1'b0;
+        pulse_active <= 1;
+        trigger_time <= $time;
+        
+        // Start pulse timer
+        #PULSE_WIDTH;
+        
+        if (pulse_active) begin
+            {{ports.outputs[0]}} <= 1'b0;
+            {{ports.outputs[1]}} <= 1'b1;
+            pulse_active <= 0;
+        end
+    end
+end
+
+endmodule
