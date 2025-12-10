@@ -1,1 +1,69 @@
+// ============================================================================
+// Auto-generated HDL from IC Metadata
+// Part Number: {{part_number}}
+// IC Name:     {{ic_name}}
+// Generated:   {{timestamp}}
+// ============================================================================
 
+`timescale 1ns / 1ps
+
+module IC_{{part_number}}(
+    // Input ports
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
+    
+    // Output ports
+    {% for output in ports.outputs %}
+    output wire {{output}},
+    {% endfor %}
+    
+    // Power ports
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
+);
+
+// Decoder 1
+reg [3:0] decoded1;
+always @(*) begin
+    if (!{{ports.inputs[2]}}) begin
+        case ({{ports.inputs[0]}}, {{ports.inputs[1]}})
+            2'b00: decoded1 = 4'b1110;
+            2'b01: decoded1 = 4'b1101;
+            2'b10: decoded1 = 4'b1011;
+            2'b11: decoded1 = 4'b0111;
+            default: decoded1 = 4'b1111;
+        endcase
+    end
+    else begin
+        decoded1 = 4'b1111;
+    end
+end
+
+// Decoder 2
+reg [3:0] decoded2;
+always @(*) begin
+    if (!{{ports.inputs[5]}}) begin
+        case ({{ports.inputs[3]}}, {{ports.inputs[4]}})
+            2'b00: decoded2 = 4'b1110;
+            2'b01: decoded2 = 4'b1101;
+            2'b10: decoded2 = 4'b1011;
+            2'b11: decoded2 = 4'b0111;
+            default: decoded2 = 4'b1111;
+        endcase
+    end
+    else begin
+        decoded2 = 4'b1111;
+    end
+end
+
+assign {{ports.outputs[0]}} = decoded1[0];
+assign {{ports.outputs[1]}} = decoded1[1];
+assign {{ports.outputs[2]}} = decoded1[2];
+assign {{ports.outputs[3]}} = decoded1[3];
+assign {{ports.outputs[4]}} = decoded2[0];
+assign {{ports.outputs[5]}} = decoded2[1];
+assign {{ports.outputs[6]}} = decoded2[2];
+assign {{ports.outputs[7]}} = decoded2[3];
+
+endmodule
