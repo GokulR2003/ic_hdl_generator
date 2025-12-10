@@ -2,134 +2,80 @@
 // Auto-generated HDL from IC Metadata
 // Part Number: {{part_number}}
 // IC Name:     {{ic_name}}
-// Category:    {{category}}
-// Subtype:     {{subtype}}
-// Family:      {{logic_family}}
 // Generated:   {{timestamp}}
+// ============================================================================
+// WARNING: Behavioral model only - not synthesizable
 // ============================================================================
 
 `timescale 1ns / 1ps
 
-// ============================================================================
-// CRITICAL WARNING
-// ============================================================================
-// This is a BEHAVIORAL MODEL of an ANALOG/MIXED-SIGNAL IC.
-// This Verilog code is for FUNCTIONAL SIMULATION ONLY and is NOT SYNTHESIZABLE.
-// For accurate timing simulation, use SPICE models.
-// ============================================================================
-
-module {{module_name|default('IC_' + part_number)}}(
+module IC_{{part_number}}(
     // Input ports
-    input wire TRIG,      // Trigger input (pin 2)
-    input wire THRES,     // Threshold input (pin 6)
-    input wire RESET,     // Reset input (pin 4)
-    input wire CONT,      // Control voltage (pin 5)
+    {% for input in ports.inputs %}
+    input wire {{input}},
+    {% endfor %}
     
     // Output ports
-    output reg OUT,       // Output (pin 3)
+    {% for output in ports.outputs %}
+    output reg {{output}},
+    {% endfor %}
     
-    // Bidirectional port
-    inout wire DISCH,     // Discharge (pin 7)
+    // Bidirectional ports
+    {% for bidir in ports.bidirectional %}
+    inout wire {{bidir}},
+    {% endfor %}
     
     // Power ports
-    input wire VCC,       // Positive supply (pin 8)
-    input wire GND        // Ground (pin 1)
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
 );
 
-// ============================================================================
-// Parameters
-// ============================================================================
-// Mode:               {{parameters.mode|join(', ')}}
-// Frequency Range:    {{parameters.frequency_range}}
-// Duty Cycle:         {{parameters.duty_cycle}}
-// ============================================================================
+// Behavioral variables
+real vcc_level = 5.0;
+real trigger_level;
+real threshold_level;
+reg discharging;
 
-// ============================================================================
-// Behavioral Model Variables
-// ============================================================================
-real v_control;           // Control voltage level
-real v_trigger;           // Trigger voltage level
-real v_threshold;         // Threshold voltage level
-reg discharging;          // Discharge state
-time pulse_start;         // Pulse start time
-real pulse_width_ns;      // Behavioral pulse width
-
-// ============================================================================
-// Initial Conditions
-// ============================================================================
 initial begin
-    OUT = 0;
-    discharging = 0;
-    pulse_start = 0;
-    
-    // Default behavioral values
-    v_control = 2.0/3.0;  // 2/3 VCC
-    pulse_width_ns = 1000; // 1us default
+    {{ports.outputs[0]}} = 1'b0;  // OUT
+    discharging = 1'b0;
+    trigger_level = vcc_level / 3.0;
+    threshold_level = 2.0 * vcc_level / 3.0;
 end
 
-// ============================================================================
-// Continuous Voltage Monitoring
-// ============================================================================
-always @(*) begin
-    // Behavioral voltage levels (simplified)
-    v_control = CONT;
-    v_trigger = TRIG;
-    v_threshold = THRES;
-end
-
-// ============================================================================
-// Reset Logic
-// ============================================================================
-always @(negedge RESET) begin
-    if (RESET == 0) begin
-        OUT <= 0;
-        discharging <= 1;
+// Reset logic
+always @(negedge {{ports.inputs[2]}}) begin
+    if (!{{ports.inputs[2]}}) begin
+        {{ports.outputs[0]}} <= 1'b0;
+        discharging <= 1'b1;
     end
 end
 
-// ============================================================================
-// Monostable Mode Behavior (One-shot)
-// ============================================================================
-always @(negedge TRIG) begin
-    if (RESET && (TRIG < v_control/3.0)) begin
-        // Trigger detected
-        OUT <= 1;
-        discharging <= 0;
-        pulse_start <= $time;
+// Trigger logic (monostable)
+always @(negedge {{ports.inputs[0]}}) begin
+    if ({{ports.inputs[2]}} && ({{ports.inputs[0]}} < trigger_level)) begin
+        {{ports.outputs[0]}} <= 1'b1;
+        discharging <= 1'b0;
         
-        // Start pulse width timer (behavioral)
-        #(pulse_width_ns);
+        // Pulse width (behavioral)
+        #1000;  // 1us pulse
         
-        if (RESET) begin
-            OUT <= 0;
-            discharging <= 1;
+        if ({{ports.inputs[2]}}) begin
+            {{ports.outputs[0]}} <= 1'b0;
+            discharging <= 1'b1;
         end
     end
 end
 
-// ============================================================================
-// Threshold Monitoring
-// ============================================================================
-always @(posedge THRES) begin
-    if (RESET && (THRES > 2.0*v_control/3.0) && OUT) begin
-        // Threshold reached while output is high
-        OUT <= 0;
-        discharging <= 1;
+// Threshold logic
+always @(posedge {{ports.inputs[1]}}) begin
+    if ({{ports.inputs[2]}} && ({{ports.inputs[1]}} > threshold_level) && {{ports.outputs[0]}}) begin
+        {{ports.outputs[0]}} <= 1'b0;
+        discharging <= 1'b1;
     end
 end
 
-// ============================================================================
-// Discharge Pin Behavior (Open Collector)
-// ============================================================================
-assign DISCH = (discharging) ? 1'b0 : 1'bz;
-
-// ============================================================================
-// HDL Generation Notes
-// ============================================================================
-// {{hdl_generation_notes.critical_warning|default('')}}
-// {{hdl_generation_notes.timing_accuracy|default('')}}
-// {{hdl_generation_notes.synthesis_warning|default('')}}
-// {{hdl_generation_notes.recommended_use|default('')}}
-// ============================================================================
+// Discharge pin
+assign {{ports.bidirectional[0]}} = discharging ? 1'b0 : 1'bz;
 
 endmodule
