@@ -2,15 +2,12 @@
 // Auto-generated HDL from IC Metadata
 // Part Number: {{part_number}}
 // IC Name:     {{ic_name}}
-// Category:    {{category}}
-// Subtype:     {{subtype}}
-// Family:      {{logic_family}}
 // Generated:   {{timestamp}}
 // ============================================================================
 
 `timescale 1ns / 1ps
 
-module {{module_name|default('IC_' + part_number)}}(
+module IC_{{part_number}}(
     // Input ports
     {% for input in ports.inputs %}
     input wire {{input}},
@@ -21,42 +18,19 @@ module {{module_name|default('IC_' + part_number)}}(
     output wire {{output}},
     {% endfor %}
     
-    // Bidirectional ports
-    {% for bidir in ports.bidirectional %}
-    inout wire {{bidir}},
-    {% endfor %}
-    
     // Power ports
-    input wire {{ports.power[0]}},  // VCC
-    input wire {{ports.power[1]}}   // GND
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
 );
 
-// ============================================================================
-// Parameters
-// ============================================================================
-// Input Width:        {{parameters.input_width}}-bit
-// Output Width:       {{parameters.output_width}}-bit
-// Enable Logic:       {{parameters.enable_logic}}
-// Output Active:      {{parameters.output_active}}
-// ============================================================================
-
-// ============================================================================
-// Internal Signals
-// ============================================================================
 wire enable;
-reg [{{parameters.output_width-1}}:0] decoded;
+reg [7:0] decoded;
 
-// ============================================================================
-// Enable Logic
-// ============================================================================
 assign enable = {{ports.inputs[3]}} & ~{{ports.inputs[4]}} & ~{{ports.inputs[5]}};
 
-// ============================================================================
-// Decoder Logic
-// ============================================================================
 always @(*) begin
     if (enable) begin
-        case ({ {{ports.inputs[2]}}, {{ports.inputs[1]}}, {{ports.inputs[0]}} })
+        case ({{ports.inputs[2]}}, {{ports.inputs[1]}}, {{ports.inputs[0]}})
             3'b000: decoded = 8'b11111110;
             3'b001: decoded = 8'b11111101;
             3'b010: decoded = 8'b11111011;
@@ -69,13 +43,10 @@ always @(*) begin
         endcase
     end
     else begin
-        decoded = 8'b11111111;  // All outputs inactive (high) when disabled
+        decoded = 8'b11111111;
     end
 end
 
-// ============================================================================
-// Output Assignments (Active Low)
-// ============================================================================
 assign {{ports.outputs[0]}} = decoded[0];
 assign {{ports.outputs[1]}} = decoded[1];
 assign {{ports.outputs[2]}} = decoded[2];
