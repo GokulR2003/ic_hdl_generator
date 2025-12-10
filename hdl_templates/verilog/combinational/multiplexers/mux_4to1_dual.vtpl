@@ -1,17 +1,13 @@
-
 // ============================================================================
 // Auto-generated HDL from IC Metadata
 // Part Number: {{part_number}}
 // IC Name:     {{ic_name}}
-// Category:    {{category}}
-// Subtype:     {{subtype}}
-// Family:      {{logic_family}}
 // Generated:   {{timestamp}}
 // ============================================================================
 
 `timescale 1ns / 1ps
 
-module {{module_name|default('IC_' + part_number)}}(
+module IC_{{part_number}}(
     // Input ports
     {% for input in ports.inputs %}
     input wire {{input}},
@@ -22,58 +18,19 @@ module {{module_name|default('IC_' + part_number)}}(
     output wire {{output}},
     {% endfor %}
     
-    // Bidirectional ports
-    {% for bidir in ports.bidirectional %}
-    inout wire {{bidir}},
-    {% endfor %}
-    
     // Power ports
-    input wire {{ports.power[0]}},  // VCC
-    input wire {{ports.power[1]}}   // GND
+    input wire {{ports.power[0]}},
+    input wire {{ports.power[1]}}
 );
 
-// ============================================================================
-// Parameters
-// ============================================================================
-// MUX Count:          {{parameters.mux_count}}
-// Inputs per MUX:     {{parameters.inputs_per_mux}}
-// Select Width:       {{parameters.select_width}}
-// Enable Active:      {{parameters.enable_active}}
-// ============================================================================
-
-// ============================================================================
-// Pinout Note
-// ============================================================================
-// {{parameters.pinout_note|default('')}}
-// ============================================================================
-
-// ============================================================================
-// Internal Signals
-// ============================================================================
 wire [1:0] select;
-wire [3:0] mux1_data;
-wire [3:0] mux2_data;
+wire [3:0] mux1_data, mux2_data;
 
-// ============================================================================
-// Select Signal Assignment
-// ============================================================================
-// Pin 2 is Select B, Pin 14 is Select A
-assign select = { {{ports.inputs[9]}}, {{ports.inputs[10]}} };  // {B, A}
-
-// ============================================================================
-// Data Input Grouping
-// ============================================================================
+assign select = { {{ports.inputs[9]}}, {{ports.inputs[10]}} };
 assign mux1_data = { {{ports.inputs[3]}}, {{ports.inputs[4]}}, {{ports.inputs[5]}}, {{ports.inputs[6]}} };
 assign mux2_data = { {{ports.inputs[13]}}, {{ports.inputs[12]}}, {{ports.inputs[11]}}, {{ports.inputs[10]}} };
 
-// ============================================================================
-// Multiplexer 1 (with enable)
-// ============================================================================
 assign {{ports.outputs[0]}} = (!{{ports.inputs[0]}}) ? mux1_data[select] : 1'b0;
-
-// ============================================================================
-// Multiplexer 2 (with enable)
-// ============================================================================
 assign {{ports.outputs[1]}} = (!{{ports.inputs[1]}}) ? mux2_data[select] : 1'b0;
 
 endmodule
