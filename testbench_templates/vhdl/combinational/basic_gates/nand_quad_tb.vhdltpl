@@ -1,0 +1,214 @@
+-- ============================================================================
+-- Testbench for: {{part_number}} - {{ic_name}}
+-- Generated: {{timestamp}}
+-- ============================================================================
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity tb_{{part_number}} is
+end tb_{{part_number}};
+
+architecture Behavioral of tb_{{part_number}} is
+
+    -- Component Declaration
+    component IC_{{part_number}}
+        Port (
+            {% for input in ports.inputs %}
+            {{input}} : in STD_LOGIC;
+            {% endfor %}
+            
+            {% for output in ports.outputs %}
+            {{output}} : out STD_LOGIC;
+            {% endfor %}
+            
+            {% for power in ports.power %}
+            {{power}} : in STD_LOGIC
+            {% if not loop.last %};{% else %};{% endif %}
+            {% endfor %}
+        );
+    end component;
+
+    -- Signals
+    {% for input in ports.inputs %}
+    signal {{input}} : STD_LOGIC := '0';
+    {% endfor %}
+    
+    {% for output in ports.outputs %}
+    signal {{output}} : STD_LOGIC;
+    {% endfor %}
+    
+    {% for power in ports.power %}
+    signal {{power}} : STD_LOGIC := '{% if 'VCC' in power or 'VDD' in power %}1{% else %}0{% endif %}';
+    {% endfor %}
+    
+    -- Test variables
+    shared variable test_count : integer := 0;
+    shared variable pass_count : integer := 0;
+    
+    -- Constants
+    constant CLK_PERIOD : time := 10 ns;
+    constant SIM_DURATION : time := {{test_coverage.simulation_duration_ns|default(1000)}} ns;
+
+begin
+
+    -- DUT Instantiation
+    uut: IC_{{part_number}}
+        port map (
+            {% for input in ports.inputs %}
+            {{input}} => {{input}},
+            {% endfor %}
+            
+            {% for output in ports.outputs %}
+            {{output}} => {{output}},
+            {% endfor %}
+            
+            {% for power in ports.power %}
+            {{power}} => {{power}}
+            {% if not loop.last %},{% else %}{% endif %}
+            {% endfor %}
+        );
+
+    -- Test process
+    stim_proc: process
+        variable expected : STD_LOGIC;
+    begin
+        report "Starting testbench for {{part_number}} - {{ic_name}}";
+        
+        -- Initialize
+        {% for input in ports.inputs %}
+        {{input}} <= '0';
+        {% endfor %}
+        
+        wait for 100 ns;
+        
+        -- Test all NAND gate truth tables
+        for i in 0 to 3 loop
+            case i is
+                when 0 => 
+                    -- Gate 1
+                    report "Testing Gate 1";
+                    test_nand_gate({{ports.inputs[0]}}, {{ports.inputs[1]}}, {{ports.outputs[0]}}, 1);
+                when 1 =>
+                    -- Gate 2
+                    report "Testing Gate 2";
+                    test_nand_gate({{ports.inputs[2]}}, {{ports.inputs[3]}}, {{ports.outputs[1]}}, 2);
+                when 2 =>
+                    -- Gate 3
+                    report "Testing Gate 3";
+                    test_nand_gate({{ports.inputs[4]}}, {{ports.inputs[5]}}, {{ports.outputs[2]}}, 3);
+                when 3 =>
+                    -- Gate 4
+                    report "Testing Gate 4";
+                    test_nand_gate({{ports.inputs[6]}}, {{ports.inputs[7]}}, {{ports.outputs[3]}}, 4);
+                when others =>
+                    null;
+            end case;
+        end loop;
+        
+        -- Test random patterns
+        report "Testing random patterns";
+        for i in 1 to {{test_coverage.min_test_vectors|default(10)}} loop
+            {% for input in ports.inputs %}
+            {{input}} <= STD_LOGIC_VECTOR(to_unsigned(i, 1))(0);
+            {% endfor %}
+            wait for 20 ns;
+            
+            -- Verify all outputs
+            if ({{ports.outputs[0]}} /= not ({{ports.inputs[0]}} and {{ports.inputs[1]}})) then
+                report "Gate 1 failed on pattern " & integer'image(i) severity error;
+            end if;
+            
+            test_count := test_count + 1;
+            pass_count := pass_count + 1;
+        end loop;
+        
+        -- Print summary
+        print_summary;
+        
+        wait for 100 ns;
+        report "Simulation complete" severity note;
+        wait;
+    end process;
+
+    -- NAND gate test procedure
+    procedure test_nand_gate(
+        signal a, b : in STD_LOGIC;
+        signal y : in STD_LOGIC;
+        constant gate_num : in integer
+    ) is
+        variable expected : STD_LOGIC;
+    begin
+        -- Test all 4 input combinations
+        a <= '0'; b <= '0'; wait for 10 ns;
+        expected := not (a and b);
+        check_output(gate_num, "00", y, expected);
+        
+        a <= '0'; b <= '1'; wait for 10 ns;
+        expected := not (a and b);
+        check_output(gate_num, "01", y, expected);
+        
+        a <= '1'; b <= '0'; wait for 10 ns;
+        expected := not (a and b);
+        check_output(gate_num, "10", y, expected);
+        
+        a <= '1'; b <= '1'; wait for 10 ns;
+        expected := not (a and b);
+        check_output(gate_num, "11", y, expected);
+    end procedure;
+
+    -- Output checking procedure
+    procedure check_output(
+        constant gate_num : in integer;
+        constant input_pattern : in string;
+        signal actual : in STD_LOGIC;
+        constant expected : in STD_LOGIC
+    ) is
+    begin
+        test_count := test_count + 1;
+        if actual = expected then
+            report "Gate " & integer'image(gate_num) & 
+                   ": Input " & input_pattern & 
+                   " -> Output " & STD_LOGIC'image(actual) & " (PASS)";
+            pass_count := pass_count + 1;
+        else
+            report "Gate " & integer'image(gate_num) & 
+                   ": Input " & input_pattern & 
+                   " -> Output " & STD_LOGIC'image(actual) & 
+                   ", Expected " & STD_LOGIC'image(expected) & " (FAIL)"
+                   severity error;
+        end if;
+    end procedure;
+
+    -- Summary printing procedure
+    procedure print_summary is
+        variable coverage : real;
+    begin
+        coverage := real(pass_count) / real(test_count) * 100.0;
+        
+        report "========================================";
+        report "TEST SUMMARY: {{part_number}} - {{ic_name}}";
+        report "========================================";
+        report "Total tests:    " & integer'image(test_count);
+        report "Passed:         " & integer'image(pass_count);
+        report "Coverage:       " & real'image(coverage) & "%";
+        report "========================================";
+        
+        if coverage >= 95.0 then
+            report "[PASS] All tests passed!" severity note;
+        else
+            report "[FAIL] Coverage below target" severity warning;
+        end if;
+    end procedure;
+
+    -- Simulation timeout
+    process
+    begin
+        wait for SIM_DURATION;
+        report "[TIMEOUT] Simulation time exceeded" severity warning;
+        print_summary;
+        wait;
+    end process;
+
+end Behavioral;
