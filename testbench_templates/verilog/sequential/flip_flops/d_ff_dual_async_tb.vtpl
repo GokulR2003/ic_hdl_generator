@@ -1,0 +1,206 @@
+// ============================================================================
+// Testbench for: {{part_number}} - {{ic_name}}
+// Generated: {{timestamp}}
+// ============================================================================
+
+`timescale 1ns / 1ps
+
+module tb_{{part_number}};
+    
+    // Parameters
+    parameter CLK_PERIOD = 20;
+    parameter SIM_DURATION = 2000;
+    
+    // DUT Signals
+    reg 1D, 1CLK, 1PRE_n, 1CLR_n, 2D, 2CLK, 2PRE_n, 2CLR_n;
+    wire 1Q, 1Q_n, 2Q, 2Q_n;
+    wire VCC, GND;
+    
+    // DUT
+    IC_{{part_number}} dut (
+        .1D(1D), .1CLK(1CLK), .1PRE_n(1PRE_n), .1CLR_n(1CLR_n),
+        .2D(2D), .2CLK(2CLK), .2PRE_n(2PRE_n), .2CLR_n(2CLR_n),
+        .1Q(1Q), .1Q_n(1Q_n), .2Q(2Q), .2Q_n(2Q_n),
+        .VCC(VCC), .GND(GND)
+    );
+    
+    // Test variables
+    integer test_count = 0;
+    integer pass_count = 0;
+    
+    // Clock generation
+    reg clk1 = 0;
+    reg clk2 = 0;
+    
+    always #(CLK_PERIOD/2) clk1 = ~clk1;
+    always #(CLK_PERIOD/3) clk2 = ~clk2;  // Different frequency for second FF
+    
+    initial begin
+        $display("[TEST] Starting testbench for {{part_number}} - Dual D Flip-Flop");
+        
+        // Initialize
+        1D = 0; 2D = 0;
+        1PRE_n = 1; 1CLR_n = 1;
+        2PRE_n = 1; 2CLR_n = 1;
+        VCC = 1; GND = 0;
+        
+        #100;
+        
+        // Connect clocks
+        1CLK = clk1;
+        2CLK = clk2;
+        
+        // Run tests
+        test_async_controls();
+        test_sync_operation();
+        test_combined_operations();
+        
+        // Print summary
+        print_summary();
+        
+        #100;
+        $finish;
+    end
+    
+    task test_async_controls;
+        begin
+            $display("[TEST] Testing asynchronous controls");
+            
+            // Test PRESET (active low)
+            1PRE_n = 0; #30;
+            check_async(1, "PRESET", 1Q, 1'b1);
+            1PRE_n = 1; #30;
+            
+            // Test CLEAR (active low)
+            1CLR_n = 0; #30;
+            check_async(1, "CLEAR", 1Q, 1'b0);
+            1CLR_n = 1; #30;
+            
+            // Test FF2 PRESET
+            2PRE_n = 0; #30;
+            check_async(2, "PRESET", 2Q, 1'b1);
+            2PRE_n = 1; #30;
+            
+            // Test FF2 CLEAR
+            2CLR_n = 0; #30;
+            check_async(2, "CLEAR", 2Q, 1'b0);
+            2CLR_n = 1; #30;
+            
+            // Test invalid state (both low)
+            1PRE_n = 0; 1CLR_n = 0; #30;
+            $display("  Note: Both PRESET and CLEAR active - undefined behavior");
+            1PRE_n = 1; 1CLR_n = 1; #30;
+        end
+    endtask
+    
+    task check_async;
+        input integer ff_num;
+        input [15:0] control_name;
+        input wire q_output;
+        input expected;
+        
+        begin
+            test_count = test_count + 1;
+            if (q_output === expected) begin
+                $display("  FF%0d %s: Q = %b (PASS)", ff_num, control_name, q_output);
+                pass_count = pass_count + 1;
+            end else begin
+                $display("  FF%0d %s: Q = %b, Expected %b (FAIL)", 
+                        ff_num, control_name, q_output, expected);
+            end
+        end
+    endtask
+    
+    task test_sync_operation;
+        integer i;
+        begin
+            $display("[TEST] Testing synchronous operation");
+            
+            // Ensure async controls are inactive
+            1PRE_n = 1; 1CLR_n = 1;
+            2PRE_n = 1; 2CLR_n = 1;
+            
+            // Test data transfer on clock edges
+            for (i = 0; i < 10; i = i + 1) begin
+                1D = $random % 2;
+                2D = $random % 2;
+                
+                // Wait for clock edge
+                @(posedge clk1);
+                #1;  // Small delay after clock edge
+                
+                if (1Q === 1D) begin
+                    $display("  FF1: D=%b -> Q=%b (PASS)", 1D, 1Q);
+                    pass_count = pass_count + 1;
+                end else begin
+                    $display("  FF1: D=%b -> Q=%b (FAIL)", 1D, 1Q);
+                end
+                
+                if (2Q === 2D) begin
+                    $display("  FF2: D=%b -> Q=%b (PASS)", 2D, 2Q);
+                    pass_count = pass_count + 1;
+                else begin
+                    $display("  FF2: D=%b -> Q=%b (FAIL)", 2D, 2Q);
+                end
+                
+                test_count = test_count + 2;
+                #30;
+            end
+        end
+    endtask
+    
+    task test_combined_operations;
+        begin
+            $display("[TEST] Testing combined async/sync operations");
+            
+            // Set data, then assert async control during clock
+            1D = 1;
+            #15;
+            1PRE_n = 0;  // Assert preset just before clock edge
+            @(posedge clk1);
+            #1;
+            
+            // Preset should override data
+            if (1Q === 1'b1) begin
+                $display("  Async preset overrides sync data (PASS)");
+                pass_count = pass_count + 1;
+            end else begin
+                $display("  Async preset failed to override (FAIL)");
+            end
+            test_count = test_count + 1;
+            
+            1PRE_n = 1;
+            #50;
+        end
+    endtask
+    
+    task print_summary;
+        real coverage;
+        begin
+            coverage = (real'(pass_count) / real'(test_count)) * 100.0;
+            
+            $display("\n" + "="*60);
+            $display("TEST SUMMARY: {{part_number}} - Dual D FF");
+            $display("="*60);
+            $display("Total tests:    %0d", test_count);
+            $display("Passed:         %0d", pass_count);
+            $display("Coverage:       %0.2f%%", coverage);
+            $display("="*60);
+        end
+    endtask
+    
+    // Simulation timeout
+    initial begin
+        #(SIM_DURATION);
+        $display("[TIMEOUT] Simulation time exceeded");
+        print_summary();
+        $finish;
+    end
+    
+    // Waveform dump
+    initial begin
+        $dumpfile("tb_{{part_number}}.vcd");
+        $dumpvars(0, tb_{{part_number}});
+    end
+    
+endmodule
