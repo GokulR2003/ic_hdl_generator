@@ -1,0 +1,61 @@
+-- ============================================================================
+-- Auto-generated VHDL from IC Metadata
+-- Part: {{part_number}} - {{ic_name}}
+-- Generated: {{timestamp}}
+-- ============================================================================
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity IC_{{part_number}} is
+    Port (
+        {% for input in ports.inputs %}
+        {{input}} : in STD_LOGIC;
+        {% endfor %}
+        
+        {% for output in ports.outputs %}
+        {{output}} : out STD_LOGIC;
+        {% endfor %}
+        
+        {% for power in ports.power %}
+        {{power}} : in STD_LOGIC
+        {% if not loop.last %};{% else %};{% endif %}
+        {% endfor %}
+    );
+end IC_{{part_number}};
+
+architecture Behavioral of IC_{{part_number}} is
+
+begin
+
+    -- D Flip-Flop 1 with async preset/clear
+    process({{ports.inputs[1]}}, {{ports.inputs[2]}}, {{ports.inputs[3]}})
+    begin
+        if {{ports.inputs[2]}} = '0' then
+            {{ports.outputs[0]}} <= '1';  -- Async preset
+            {{ports.outputs[1]}} <= '0';
+        elsif {{ports.inputs[3]}} = '0' then
+            {{ports.outputs[0]}} <= '0';  -- Async clear
+            {{ports.outputs[1]}} <= '1';
+        elsif rising_edge({{ports.inputs[1]}}) then
+            {{ports.outputs[0]}} <= {{ports.inputs[0]}};  -- Data transfer
+            {{ports.outputs[1]}} <= not {{ports.inputs[0]}};
+        end if;
+    end process;
+
+    -- D Flip-Flop 2 with async preset/clear
+    process({{ports.inputs[5]}}, {{ports.inputs[6]}}, {{ports.inputs[7]}})
+    begin
+        if {{ports.inputs[6]}} = '0' then
+            {{ports.outputs[2]}} <= '1';  -- Async preset
+            {{ports.outputs[3]}} <= '0';
+        elsif {{ports.inputs[7]}} = '0' then
+            {{ports.outputs[2]}} <= '0';  -- Async clear
+            {{ports.outputs[3]}} <= '1';
+        elsif rising_edge({{ports.inputs[5]}}) then
+            {{ports.outputs[2]}} <= {{ports.inputs[4]}};  -- Data transfer
+            {{ports.outputs[3]}} <= not {{ports.inputs[4]}};
+        end if;
+    end process;
+
+end Behavioral;
