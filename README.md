@@ -16,42 +16,42 @@ A tool to automatically generate Verilog/VHDL code from IC metadata using Jinja2
 ### Installation
 
 ```
-# Clone the repository
+## Clone the repository
 git clone https://github.com/GokulR2003/ic_hdl_generator.git
 cd ic_hdl_generator
 
-# Install dependencies
+## Install dependencies
 pip install -r requirements.txt
 ```
-# List all available ICs
+## List all available ICs
 ic-hdl-gen list
 
-# Generate Verilog for 7400
+## Generate Verilog for 7400
 ic-hdl-gen generate 7400
 
-# Generate VHDL for 7400
+## Generate VHDL for 7400
 ic-hdl-gen generate 7400 --language vhdl
 
-# Generate all ICs
+## Generate all ICs
 ic-hdl-gen generate-all
 
-# Generate testbench
+## Generate testbench
 ic-hdl-gen testbench 7400
 
-## Python API
+### Python API
 from src.hdl_generator import HDLGenerator
 
-# Create generator
+## Create generator
 gen = HDLGenerator('Ic_Metadata_Master.json', 'hdl_templates/')
 
-# Generate HDL
+## Generate HDL
 verilog = gen.generate_hdl('7400', 'verilog')
 
-# Generate all
+## Generate all
 gen.generate_all('verilog', 'output/')
 
-## Supported ICs
-# Combinational Logic
+### Supported ICs
+## Combinational Logic
 7400 - Quad 2-input NAND
 
 7402 - Quad 2-input NOR
@@ -76,7 +76,7 @@ gen.generate_all('verilog', 'output/')
 
 7485 - 4-bit Comparator
 
-# Sequential Logic
+## Sequential Logic
 7474 - Dual D Flip-Flop
 
 7476 - Dual JK Flip-Flop
@@ -87,14 +87,14 @@ gen.generate_all('verilog', 'output/')
 
 4017 - Johnson Counter
 
-# Special Functions
+## Special Functions
 74245 - Octal Bus Transceiver
 
 74121 - Monostable Multivibrator
 
 555 - Timer IC
 
-## Adding New ICs
+### Adding New ICs
 Add IC metadata to Ic_Metadata_Master.json
 
 Create template in hdl_templates/
