@@ -1,0 +1,76 @@
+// SystemVerilog Testbench for {{circuit_name}}
+module {{circuit_name}}_tb;
+    // Signals
+    {% for input in circuit.inputs %}
+    logic {{input}};
+    {% endfor %}
+    
+    {% for output in circuit.outputs %}
+    logic {{output}};
+    {% endfor %}
+    
+    // Clock (if sequential)
+    logic clk = 0;
+    always #5 clk = ~clk;
+    
+    // DUT Instantiation
+    {{circuit_name}} dut (
+        {% for input in circuit.inputs %}
+        .{{input}}({{input}}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% for output in circuit.outputs %}
+        .{{output}}({{output}}){% if not loop.last %},{% endif %}
+        {% endfor %}
+    );
+    
+    // Test sequence
+    initial begin
+        $display("Testing {{circuit.description}}");
+        
+        // Initialize
+        {% for input in circuit.inputs %}
+        {{input}} = 0;
+        {% endfor %}
+        
+        // Apply test vectors
+        {% for vector in test_vectors %}
+        // Test {{loop.index}}
+        {% for sig, val in vector.items() if sig in circuit.inputs %}
+        {{sig}} = {{val}};
+        {% endfor %}
+        #10;
+        
+        // Check outputs
+        {% for sig, val in vector.items() if sig in circuit.outputs %}
+        if ({{sig}} !== {{val}}) begin
+            $error("{{sig}} incorrect: Expected %b, Got %b", {{val}}, {{sig}});
+        end
+        {% endfor %}
+        {% endfor %}
+        
+        $display("All tests passed!");
+        $finish;
+    end
+    
+    // Coverage collection
+    covergroup {{circuit_name}}_cg;
+        {% for input in circuit.inputs %}
+        coverpoint {{input}};
+        {% endfor %}
+        {% for output in circuit.outputs %}
+        coverpoint {{output}};
+        {% endfor %}
+    endgroup
+    
+    {{circuit_name}}_cg cg = new();
+    
+    always @(posedge clk) begin
+        cg.sample();
+    end
+    
+    // Waveform dump
+    initial begin
+        $dumpfile("{{circuit_name}}.vcd");
+        $dumpvars(0, {{circuit_name}}_tb);
+    end
+endmodule
