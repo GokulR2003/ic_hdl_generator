@@ -1,0 +1,50 @@
+# Create templates/circuit.vtpl
+# Save this as templates/circuit.vtpl
+// {{ config.name }}
+// {{ config.description }}
+// Generated from ICs: {{ config.ics|join(', ') }}
+
+module {{ circuit_name }}(
+    input {% for inp in config.inputs %}{{ inp }}{% if not loop.last %}, {% endif %}{% endfor %},
+    output {% for outp in config.outputs %}{{ outp }}{% if not loop.last %}, {% endif %}{% endfor %}
+);
+
+{% if wires %}
+    // Internal wires
+    {% for wire in wires|sort %}
+    wire {{ wire }};
+    {% endfor %}
+{% endif %}
+
+    // IC instances
+    {% for instance in instances %}
+    {% if instance.type == 'circuit' %}
+    // {{ instance.part }} instance
+    {{ instance.module_name }} {{ instance.instance_name }} (
+        {% if instance.connections %}
+        {% for conn in instance.connections %}
+        {% for i in range(conn.inputs|length) %}
+        .{{ ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][i] }}({{ conn.inputs[i] }}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% for i in range(conn.outputs|length) %}
+        .{{ ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'][i] }}({{ conn.outputs[i] }}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% endfor %}
+        );
+    {% endif %}
+    {% else %}
+    // {{ instance.part }} instance
+    {{ instance.module_name }} {{ instance.instance_name }} (
+        {% if instance.connections %}
+        {% for conn in instance.connections %}
+        {% for i in range(conn.inputs|length) %}
+        .{{ ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][i] }}({{ conn.inputs[i] }}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% if conn.output %}
+        .Y({{ conn.output }}){% endif %}
+        {% endfor %}
+        );
+    {% endif %}
+    {% endfor %}
+
+endmodule
