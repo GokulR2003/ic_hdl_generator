@@ -1,0 +1,38 @@
+{
+  "full_adder_1bit": {
+    "category": "arithmetic",
+    "description": "1-bit binary full adder",
+    "implementation": {
+      "discrete_7400": {
+        "ics_required": [
+          {"part": "7486", "count": 2, "role": "xor"},
+          {"part": "7408", "count": 2, "role": "and"},
+          {"part": "7432", "count": 1, "role": "or"}
+        ],
+        "connections": [
+          "xor1.inputs = [A, B]",
+          "xor2.inputs = [xor1.output, Cin]", 
+          "and1.inputs = [A, B]",
+          "and2.inputs = [xor1.output, Cin]",
+          "or1.inputs = [and1.output, and2.output]",
+          "Sum = xor2.output",
+          "Cout = or1.output"
+        ]
+      }
+    }
+  },
+  "4bit_ripple_adder": {
+    "category": "arithmetic",
+    "description": "4-bit ripple carry adder",
+    "hierarchy": "4x full_adder_1bit",
+    "implementation": {
+      "discrete_7400": {
+        "ics_required": [
+          {"part": "7486", "count": 8},
+          {"part": "7408", "count": 8},
+          {"part": "7432", "count": 4}
+        ]
+      }
+    }
+  }
+}
