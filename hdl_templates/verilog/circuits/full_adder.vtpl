@@ -1,0 +1,22 @@
+// {{circuit.description}}
+module {{circuit.name}}(
+    input wire {% for input in circuit.inputs %}{{input}}{% if not loop.last %}, {% endif %}{% endfor %},
+    output wire {% for output in circuit.outputs %}{{output}}{% if not loop.last %}, {% endif %}{% endfor %}
+);
+
+// Instance declarations
+{% for instance in instances %}
+{{instance.part}} {{instance.name}} (
+    {% for port in instance.ports.inputs %}.{{port}}({{port}}_{{instance.name}}){% if not loop.last %},{% endif %}
+    {% endfor %}
+    {% for port in instance.ports.outputs %}.{{port}}({{port}}_{{instance.name}}){% if not loop.last %},{% endif %}
+    {% endfor %}
+);
+{% endfor %}
+
+// Interconnections
+{% for connection in connections %}
+assign {{connection.target}} = {{connection.source}};
+{% endfor %}
+
+endmodule
