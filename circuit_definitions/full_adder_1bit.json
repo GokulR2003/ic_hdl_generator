@@ -1,0 +1,23 @@
+{
+  "name": "full_adder_1bit",
+  "category": "arithmetic",
+  "description": "1-bit binary full adder",
+  "inputs": ["A", "B", "Cin"],
+  "outputs": ["Sum", "Cout"],
+  "implementation": {
+    "discrete_7400": {
+      "ics_required": [
+        {"part": "7486", "count": 2},
+        {"part": "7408", "count": 2},
+        {"part": "7432", "count": 1}
+      ],
+      "connections": [
+        "temp = A ^ B",
+        "Sum = temp ^ Cin",
+        "carry1 = A & B",
+        "carry2 = temp & Cin",
+        "Cout = carry1 | carry2"
+      ]
+    }
+  }
+}
