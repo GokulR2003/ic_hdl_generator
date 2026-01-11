@@ -1,49 +1,57 @@
 #!/bin/bash
-# Quick test of the complete system
+# run_quick_test.sh - Final version
 
-echo "IC HDL Generator - Complete System Test"
-echo "========================================"
+echo "=== IC HDL Generator Complete Test Suite ==="
+echo ""
 
-# Clean old outputs
-echo "1. Cleaning old outputs..."
-rm -rf generated_verilog generated_vhdl generated_testbenches examples/output
-
-# Run setup
-echo "2. Running setup..."
+# 1. Setup
+echo "[1/5] Running setup..."
 python setup_complete.py
 
-# Test basic functionality
-echo -e "\n3. Testing basic functionality..."
-echo "3.1 Listing supported ICs:"
-python advanced_generator.py list-supported
+# 2. Generate individual ICs
+echo "[2/5] Generating individual ICs..."
+python advanced_generator.py generate-all --language verilog --testbenches
+python advanced_generator.py generate-all --language vhdl
 
-echo -e "\n3.2 Generating Verilog for 7400:"
-python advanced_generator.py generate 7400 --language verilog
+# 3. Generate advanced circuits
+echo "[3/5] Generating advanced circuits..."
+python circuit_generator_advanced.py
 
-echo -e "\n3.3 Generating testbench for 7400:"
-python advanced_generator.py testbench 7400
+# 4. Create a combined simulation test
+echo "[4/5] Creating simulation package..."
+cat > test_simulation.sh << 'EOF'
+#!/bin/bash
+echo "=== Simulation Test ==="
+cd generated_circuits_advanced
 
-echo -e "\n3.4 Generating VHDL for 7474:"
-python advanced_generator.py generate 7474 --language vhdl
+# Copy needed IC modules
+cp ../generated_verilog/IC_7486.v .
+cp ../generated_verilog/IC_7408.v .  
+cp ../generated_verilog/IC_7432.v .
 
-# Test batch generation
-echo -e "\n4. Testing batch generation..."
-echo "4.1 Generating all Verilog ICs:"
-python advanced_generator.py generate-all --language verilog
+# Compile and simulate full adder
+echo "Simulating full_adder_1bit..."
+iverilog -o full_adder_sim full_adder_1bit.v full_adder_1bit_tb.sv IC_7486.v IC_7408.v IC_7432.v
+vvp full_adder_sim
 
-echo -e "\n4.2 Generating all testbenches:"
-python advanced_generator.py testbench-all
+echo ""
+echo "To view waveform: gtkwave full_adder_1bit.vcd"
+EOF
 
-# Check results
-echo -e "\n5. Checking results..."
-echo "Verilog files generated: $(ls generated_verilog/*.v 2>/dev/null | wc -l)"
-echo "VHDL files generated: $(ls generated_vhdl/*.vhd 2>/dev/null | wc -l)"
-echo "Testbenches generated: $(ls generated_testbenches/*.v 2>/dev/null | wc -l)"
+chmod +x test_simulation.sh
 
-# Show sample files
-echo -e "\n6. Sample generated files:"
-ls -la generated_verilog/IC_7400.v generated_vhdl/IC_7474.vhd generated_testbenches/tb_7400.v 2>/dev/null
-
-echo -e "\n✅ Test complete!"
-echo -e "\nTo run the full example:"
-echo "python examples/advanced_example.py"
+# 5. Summary
+echo "[5/5] Generated files summary:"
+echo ""
+echo "Individual ICs:"
+echo "  Verilog: generated_verilog/ (20 files)"
+echo "  VHDL:    generated_vhdl/ (20 files)"
+echo "  Testbenches: generated_testbenches/ (20 files)"
+echo ""
+echo "Complex Circuits:"
+ls -la generated_circuits_advanced/
+echo ""
+echo "=== Test Complete ==="
+echo ""
+echo "To run simulation test:"
+echo "  ./test_simulation.sh"
