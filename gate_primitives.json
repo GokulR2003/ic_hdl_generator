@@ -1,0 +1,907 @@
+[
+  {
+    "primitive_id": "AND",
+    "primitive_name": "AND Gate",
+    "description": "Logical conjunction - outputs 1 only when all inputs are 1",
+    "category": "basic_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "conjunction",
+      "symbol": "&",
+      "algebraic_notation": "·",
+      "boolean_function": "Y = A · B",
+      "truth_function": "product",
+      "identity_element": "1",
+      "null_element": "0",
+      "idempotent": true,
+      "commutative": true,
+      "associative": true,
+      "distributive_over": ["OR"],
+      "demorgan_dual": "OR"
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "0001",
+        "table": {
+          "00": 0, "01": 0, "10": 0, "11": 1
+        },
+        "minterms": [3],
+        "maxterms": [0, 1, 2]
+      },
+      "3_input": {
+        "vector": "00000001",
+        "minterms": [7],
+        "maxterms": [0, 1, 2, 3, 4, 5, 6]
+      },
+      "4_input": {
+        "vector": "0000000000000001",
+        "minterms": [15],
+        "maxterms": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7408",
+          "ic_name": "Quad 2-Input AND",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 15,
+          "power_dissipation_mw": 10,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "recommended": true
+        },
+        {
+          "ic_number": "7411",
+          "ic_name": "Triple 3-Input AND",
+          "family": "74xx",
+          "gates_per_package": 3,
+          "inputs_per_gate": 3,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 15,
+          "power_dissipation_mw": 10,
+          "cost_relative": 1.1,
+          "availability": "medium"
+        },
+        {
+          "ic_number": "7421",
+          "ic_name": "Dual 4-Input AND",
+          "family": "74xx",
+          "gates_per_package": 2,
+          "inputs_per_gate": 4,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 20,
+          "power_dissipation_mw": 12,
+          "cost_relative": 1.2,
+          "availability": "low"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4081",
+          "ic_name": "Quad 2-Input AND",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 50,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "voltage_range": "3-15V"
+        },
+        {
+          "ic_number": "4082",
+          "ic_name": "Dual 4-Input AND",
+          "family": "4000",
+          "gates_per_package": 2,
+          "inputs_per_gate": 4,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 60,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.1,
+          "availability": "medium"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "wide_input_strategy": "tree_structure",
+        "3_input_from_2": {
+          "method": "cascade",
+          "gates_needed": 2,
+          "formula": "Y = (A & B) & C",
+          "delay_factor": 2
+        },
+        "4_input_from_2": {
+          "method": "tree",
+          "gates_needed": 3,
+          "formula": "Y = ((A & B) & (C & D))",
+          "delay_factor": 2
+        },
+        "8_input_from_2": {
+          "method": "balanced_tree",
+          "gates_needed": 7,
+          "levels": 3,
+          "delay_factor": 3
+        }
+      },
+      "alternative_implementations": {
+        "using_nand": {
+          "gates_needed": 2,
+          "formula": "Y = NAND(NAND(A, B), NAND(A, B))",
+          "explanation": "AND = NOT(NAND)"
+        },
+        "using_nor": {
+          "gates_needed": 3,
+          "formula": "Y = NOR(NOR(A, A), NOR(B, B))",
+          "explanation": "AND = NOT(A) NOR NOT(B) by De Morgan"
+        }
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "preferred_for_sop": true,
+      "preferred_for_pos": false,
+      "typical_usage": "product_terms"
+    }
+  },
+  
+  {
+    "primitive_id": "OR",
+    "primitive_name": "OR Gate",
+    "description": "Logical disjunction - outputs 1 when at least one input is 1",
+    "category": "basic_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "disjunction",
+      "symbol": "|",
+      "algebraic_notation": "+",
+      "boolean_function": "Y = A + B",
+      "truth_function": "sum",
+      "identity_element": "0",
+      "null_element": "1",
+      "idempotent": true,
+      "commutative": true,
+      "associative": true,
+      "distributive_over": ["AND"],
+      "demorgan_dual": "AND"
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "0111",
+        "table": {
+          "00": 0, "01": 1, "10": 1, "11": 1
+        },
+        "minterms": [1, 2, 3],
+        "maxterms": [0]
+      },
+      "3_input": {
+        "vector": "01111111",
+        "minterms": [1, 2, 3, 4, 5, 6, 7]
+      },
+      "4_input": {
+        "vector": "0111111111111111",
+        "minterms": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7432",
+          "ic_name": "Quad 2-Input OR",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 15,
+          "power_dissipation_mw": 10,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "recommended": true
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4071",
+          "ic_name": "Quad 2-Input OR",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 50,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.0,
+          "availability": "high"
+        },
+        {
+          "ic_number": "4072",
+          "ic_name": "Dual 4-Input OR",
+          "family": "4000",
+          "gates_per_package": 2,
+          "inputs_per_gate": 4,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 60,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.1,
+          "availability": "medium"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "wide_input_strategy": "tree_structure",
+        "4_input_from_2": {
+          "method": "tree",
+          "gates_needed": 3,
+          "formula": "Y = (A | B) | (C | D)",
+          "delay_factor": 2
+        }
+      },
+      "alternative_implementations": {
+        "using_nand": {
+          "gates_needed": 3,
+          "formula": "Y = NAND(NAND(A, A), NAND(B, B))",
+          "explanation": "OR = NOT(A) NAND NOT(B) by De Morgan"
+        },
+        "using_nor": {
+          "gates_needed": 2,
+          "formula": "Y = NOR(NOR(A, B), NOR(A, B))",
+          "explanation": "OR = NOT(NOR)"
+        }
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "preferred_for_sop": false,
+      "preferred_for_pos": true,
+      "typical_usage": "sum_terms"
+    }
+  },
+  
+  {
+    "primitive_id": "NOT",
+    "primitive_name": "NOT Gate (Inverter)",
+    "description": "Logical negation - outputs the opposite of the input",
+    "category": "basic_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "negation",
+      "symbol": "!",
+      "algebraic_notation": "'",
+      "boolean_function": "Y = A'",
+      "truth_function": "complement",
+      "involution": true,
+      "self_dual": true
+    },
+    
+    "truth_patterns": {
+      "1_input": {
+        "vector": "10",
+        "table": {
+          "0": 1, "1": 0
+        }
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7404",
+          "ic_name": "Hex Inverter",
+          "family": "74xx",
+          "gates_per_package": 6,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 8,
+          "power_dissipation_mw": 8,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "recommended": true
+        },
+        {
+          "ic_number": "7405",
+          "ic_name": "Hex Inverter (Open Collector)",
+          "family": "74xx",
+          "gates_per_package": 6,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "output_type": "open_collector",
+          "propagation_delay_ns": 10,
+          "availability": "medium"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4069",
+          "ic_name": "Hex Inverter",
+          "family": "4000",
+          "gates_per_package": 6,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 40,
+          "power_dissipation_mw": 0.05,
+          "cost_relative": 1.0,
+          "availability": "high"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "note": "Cannot be decomposed further - atomic operation"
+      },
+      "alternative_implementations": {
+        "using_nand": {
+          "gates_needed": 1,
+          "formula": "Y = NAND(A, A)",
+          "explanation": "NOT = NAND with tied inputs"
+        },
+        "using_nor": {
+          "gates_needed": 1,
+          "formula": "Y = NOR(A, A)",
+          "explanation": "NOT = NOR with tied inputs"
+        }
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "essential": true,
+      "typical_usage": "complement_generation"
+    }
+  },
+  
+  {
+    "primitive_id": "NAND",
+    "primitive_name": "NAND Gate",
+    "description": "NOT-AND - Universal gate, outputs 0 only when all inputs are 1",
+    "category": "universal_gate",
+    "is_universal": true,
+    
+    "logic_properties": {
+      "operation": "negated_conjunction",
+      "symbol": "~&",
+      "boolean_function": "Y = ~(A & B)",
+      "truth_function": "nand",
+      "sheffer_stroke": true,
+      "functionally_complete": true
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "1110",
+        "table": {
+          "00": 1, "01": 1, "10": 1, "11": 0
+        },
+        "minterms": [0, 1, 2],
+        "maxterms": [3]
+      },
+      "3_input": {
+        "vector": "11111110",
+        "minterms": [0, 1, 2, 3, 4, 5, 6]
+      },
+      "4_input": {
+        "vector": "1111111111111110"
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7400",
+          "ic_name": "Quad 2-Input NAND",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 10,
+          "power_dissipation_mw": 10,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "recommended": true,
+          "notes": "Most common logic IC"
+        },
+        {
+          "ic_number": "7410",
+          "ic_name": "Triple 3-Input NAND",
+          "family": "74xx",
+          "gates_per_package": 3,
+          "inputs_per_gate": 3,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 10,
+          "availability": "high"
+        },
+        {
+          "ic_number": "7420",
+          "ic_name": "Dual 4-Input NAND",
+          "family": "74xx",
+          "gates_per_package": 2,
+          "inputs_per_gate": 4,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 12,
+          "availability": "high"
+        },
+        {
+          "ic_number": "7430",
+          "ic_name": "Single 8-Input NAND",
+          "family": "74xx",
+          "gates_per_package": 1,
+          "inputs_per_gate": 8,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 15,
+          "availability": "medium"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4011",
+          "ic_name": "Quad 2-Input NAND",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 50,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.0,
+          "availability": "high"
+        },
+        {
+          "ic_number": "4012",
+          "ic_name": "Dual 4-Input NAND",
+          "family": "4000",
+          "gates_per_package": 2,
+          "inputs_per_gate": 4,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 60,
+          "availability": "medium"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "universal_gate_property": "Can implement any Boolean function",
+        "basic_gates_from_nand": {
+          "NOT": {
+            "gates_needed": 1,
+            "formula": "Y = NAND(A, A)"
+          },
+          "AND": {
+            "gates_needed": 2,
+            "formula": "Y = NAND(NAND(A, B), NAND(A, B))"
+          },
+          "OR": {
+            "gates_needed": 3,
+            "formula": "Y = NAND(NAND(A, A), NAND(B, B))"
+          },
+          "NOR": {
+            "gates_needed": 4,
+            "formula": "Y = NAND(NAND(NAND(A, A), NAND(B, B)), NAND(NAND(A, A), NAND(B, B)))"
+          },
+          "XOR": {
+            "gates_needed": 4,
+            "formula": "Y = NAND(NAND(A, NAND(A, B)), NAND(B, NAND(A, B)))"
+          }
+        }
+      },
+      "optimization_preference": {
+        "reason": "Universal gate allows single IC type design",
+        "cost_benefit": "Reduced inventory and design complexity",
+        "typical_strategy": "NAND-only or NOR-only design"
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "universal_gate_bonus": true,
+      "preferred_for_minimization": true,
+      "typical_usage": "universal_implementation"
+    }
+  },
+  
+  {
+    "primitive_id": "NOR",
+    "primitive_name": "NOR Gate",
+    "description": "NOT-OR - Universal gate, outputs 1 only when all inputs are 0",
+    "category": "universal_gate",
+    "is_universal": true,
+    
+    "logic_properties": {
+      "operation": "negated_disjunction",
+      "symbol": "~|",
+      "boolean_function": "Y = ~(A | B)",
+      "truth_function": "nor",
+      "peirce_arrow": true,
+      "functionally_complete": true
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "1000",
+        "table": {
+          "00": 1, "01": 0, "10": 0, "11": 0
+        },
+        "minterms": [0],
+        "maxterms": [1, 2, 3]
+      },
+      "3_input": {
+        "vector": "10000000",
+        "minterms": [0]
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7402",
+          "ic_name": "Quad 2-Input NOR",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 12,
+          "power_dissipation_mw": 10,
+          "cost_relative": 1.0,
+          "availability": "high",
+          "recommended": true
+        },
+        {
+          "ic_number": "7427",
+          "ic_name": "Triple 3-Input NOR",
+          "family": "74xx",
+          "gates_per_package": 3,
+          "inputs_per_gate": 3,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 12,
+          "availability": "medium"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4001",
+          "ic_name": "Quad 2-Input NOR",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 50,
+          "power_dissipation_mw": 0.1,
+          "cost_relative": 1.0,
+          "availability": "high"
+        },
+        {
+          "ic_number": "4025",
+          "ic_name": "Triple 3-Input NOR",
+          "family": "4000",
+          "gates_per_package": 3,
+          "inputs_per_gate": 3,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 60,
+          "availability": "medium"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "universal_gate_property": "Can implement any Boolean function",
+        "basic_gates_from_nor": {
+          "NOT": {
+            "gates_needed": 1,
+            "formula": "Y = NOR(A, A)"
+          },
+          "OR": {
+            "gates_needed": 2,
+            "formula": "Y = NOR(NOR(A, B), NOR(A, B))"
+          },
+          "AND": {
+            "gates_needed": 3,
+            "formula": "Y = NOR(NOR(A, A), NOR(B, B))"
+          },
+          "NAND": {
+            "gates_needed": 4,
+            "formula": "Complex - rarely used"
+          }
+        }
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "universal_gate_bonus": true,
+      "preferred_for_pos": true,
+      "typical_usage": "universal_implementation"
+    }
+  },
+  
+  {
+    "primitive_id": "XOR",
+    "primitive_name": "XOR Gate (Exclusive OR)",
+    "description": "Exclusive OR - outputs 1 when inputs are different",
+    "category": "arithmetic_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "exclusive_disjunction",
+      "symbol": "^",
+      "algebraic_notation": "⊕",
+      "boolean_function": "Y = A ⊕ B",
+      "truth_function": "xor",
+      "commutative": true,
+      "associative": true,
+      "self_inverse": true,
+      "parity_function": true
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "0110",
+        "table": {
+          "00": 0, "01": 1, "10": 1, "11": 0
+        },
+        "minterms": [1, 2],
+        "maxterms": [0, 3]
+      },
+      "3_input": {
+        "vector": "01101001",
+        "minterms": [1, 2, 4, 7],
+        "note": "3-input XOR is odd parity"
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7486",
+          "ic_name": "Quad 2-Input XOR",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 20,
+          "power_dissipation_mw": 14,
+          "cost_relative": 1.2,
+          "availability": "high",
+          "recommended": true
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4070",
+          "ic_name": "Quad 2-Input XOR",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 70,
+          "power_dissipation_mw": 0.15,
+          "cost_relative": 1.2,
+          "availability": "high"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "using_basic_gates": {
+          "formula": "Y = (A & !B) | (!A & B)",
+          "gates_needed": {
+            "NOT": 2,
+            "AND": 2,
+            "OR": 1
+          }
+        },
+        "using_nand_only": {
+          "gates_needed": 4,
+          "formula": "Y = NAND(NAND(A, NAND(A, B)), NAND(B, NAND(A, B)))"
+        }
+      },
+      "special_properties": {
+        "parity_checker": "Multi-input XOR detects odd parity",
+        "difference_detector": "2-input XOR detects bit difference",
+        "controlled_inverter": "XOR with constant input acts as NOT gate"
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 2,
+      "essential_for": ["adders", "comparators", "parity_generators"],
+      "typical_usage": "arithmetic_circuits"
+    }
+  },
+  
+  {
+    "primitive_id": "XNOR",
+    "primitive_name": "XNOR Gate (Exclusive NOR)",
+    "description": "Exclusive NOR - outputs 1 when inputs are the same",
+    "category": "arithmetic_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "equivalence",
+      "symbol": "~^",
+      "algebraic_notation": "⊙",
+      "boolean_function": "Y = ~(A ⊕ B)",
+      "truth_function": "xnor",
+      "equivalence_function": true,
+      "even_parity_function": true
+    },
+    
+    "truth_patterns": {
+      "2_input": {
+        "vector": "1001",
+        "table": {
+          "00": 1, "01": 0, "10": 0, "11": 1
+        },
+        "minterms": [0, 3],
+        "maxterms": [1, 2]
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "74266",
+          "ic_name": "Quad 2-Input XNOR (Open Collector)",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "output_type": "open_collector",
+          "propagation_delay_ns": 25,
+          "availability": "low"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4077",
+          "ic_name": "Quad 2-Input XNOR",
+          "family": "4000",
+          "gates_per_package": 4,
+          "inputs_per_gate": 2,
+          "package_type": "DIP-14",
+          "propagation_delay_ns": 70,
+          "availability": "medium"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "using_xor_and_not": {
+          "gates_needed": 2,
+          "formula": "Y = NOT(XOR(A, B))"
+        },
+        "using_basic_gates": {
+          "formula": "Y = (A & B) | (!A & !B)",
+          "gates_needed": {
+            "NOT": 2,
+            "AND": 2,
+            "OR": 1
+          }
+        }
+      },
+      "special_properties": {
+        "equivalence_checker": "Detects when bits are equal",
+        "even_parity_generator": "Multi-input XNOR for even parity"
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 2,
+      "essential_for": ["comparators", "even_parity_generators"],
+      "typical_usage": "comparison_circuits"
+    }
+  },
+  
+  {
+    "primitive_id": "BUFFER",
+    "primitive_name": "Buffer",
+    "description": "Non-inverting buffer - outputs the same as input with signal restoration",
+    "category": "special_gate",
+    "is_universal": false,
+    
+    "logic_properties": {
+      "operation": "identity",
+      "symbol": "▷",
+      "boolean_function": "Y = A",
+      "truth_function": "identity",
+      "purpose": "signal_restoration_and_fanout"
+    },
+    
+    "truth_patterns": {
+      "1_input": {
+        "vector": "01",
+        "table": {
+          "0": 0, "1": 1
+        }
+      }
+    },
+    
+    "ic_implementations": {
+      "TTL": [
+        {
+          "ic_number": "7407",
+          "ic_name": "Hex Buffer (Open Collector)",
+          "family": "74xx",
+          "gates_per_package": 6,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "output_type": "open_collector",
+          "propagation_delay_ns": 15,
+          "availability": "medium"
+        },
+        {
+          "ic_number": "74125",
+          "ic_name": "Quad 3-State Buffer",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "output_type": "tristate",
+          "propagation_delay_ns": 18,
+          "availability": "high"
+        },
+        {
+          "ic_number": "74126",
+          "ic_name": "Quad 3-State Buffer (Positive Enable)",
+          "family": "74xx",
+          "gates_per_package": 4,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-14",
+          "output_type": "tristate",
+          "propagation_delay_ns": 18,
+          "availability": "high"
+        }
+      ],
+      "CMOS": [
+        {
+          "ic_number": "4050",
+          "ic_name": "Hex Non-Inverting Buffer",
+          "family": "4000",
+          "gates_per_package": 6,
+          "inputs_per_gate": 1,
+          "package_type": "DIP-16",
+          "propagation_delay_ns": 40,
+          "power_dissipation_mw": 0.05,
+          "cost_relative": 1.0,
+          "availability": "high"
+        }
+      ]
+    },
+    
+    "synthesis_rules": {
+      "decomposition": {
+        "note": "Cannot be decomposed - provides signal restoration",
+        "purpose": "Drive multiple loads without degradation"
+      },
+      "use_cases": {
+        "fanout_increase": "Drive more gates than source can handle",
+        "signal_restoration": "Restore degraded logic levels",
+        "level_shifting": "Interface between different logic families",
+        "bus_buffering": "Tri-state buffers for shared buses"
+      }
+    },
+    
+    "optimization_metrics": {
+      "complexity_score": 1,
+      "essential_for_large_fanout": true,
+      "typical_usage": "signal_distribution"
+    }
+  }
+]
