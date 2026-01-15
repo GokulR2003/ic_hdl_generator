@@ -10,13 +10,18 @@ import argparse
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 
-# Check for Boolean support modules
+# Try to import Boolean support modules
 try:
     from boolean_to_hdl import BooleanToHDLGenerator
     BOOLEAN_SUPPORT = True
-except ImportError:
+except ImportError as e:
     BOOLEAN_SUPPORT = False
-
+    # Create a dummy class if import fails
+    class BooleanToHDLGenerator:
+        def __init__(self, *args, **kwargs):
+            pass
+        def generate(self, *args, **kwargs):
+            return {"error": "Boolean modules not installed"}
 class AdvancedHDLGenerator:
     def __init__(self):
         self.metadata = self.load_metadata()
