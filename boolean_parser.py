@@ -1,10 +1,13 @@
-# boolean_parser.py
-from gate_database import GateDatabase
+#!/usr/bin/env python3
+"""
+Boolean Expression Parser
+"""
+
 import re
+from typing import Dict, List, Optional, Union
 
 class BooleanExpressionParser:
     def __init__(self):
-        self.db = GateDatabase()
         self.operators = {
             '&': 'AND', '·': 'AND',
             '|': 'OR', '+': 'OR',
@@ -79,14 +82,21 @@ class BooleanExpressionParser:
             left = self._evaluate_ast(ast["left"], variable_values)
             right = self._evaluate_ast(ast["right"], variable_values)
             
-            gate_info = self.db.get_gate(ast["type"])
-            if not gate_info:
-                raise ValueError(f"Unknown gate type: {ast['type']}")
-            
-            # Get truth vector for this gate
-            vector = gate_info["truth_patterns"]["2_input"]["vector"]
-            index = (left << 1) | right
-            return int(vector[index])
+            # For now, handle basic operations
+            if ast["type"] == "AND":
+                return left & right
+            elif ast["type"] == "OR":
+                return left | right
+            elif ast["type"] == "XOR":
+                return left ^ right
+            elif ast["type"] == "NAND":
+                return 1 if not (left & right) else 0
+            elif ast["type"] == "NOR":
+                return 1 if not (left | right) else 0
+            elif ast["type"] == "XNOR":
+                return 1 if left == right else 0
+        
+        return 0
     
     def _generate_truth_table(self, ast: Dict, variables: List[str]) -> List[Dict]:
         """Generate complete truth table"""
