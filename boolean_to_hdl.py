@@ -1,15 +1,20 @@
-# boolean_to_hdl.py
+#!/usr/bin/env python3
+"""
+Boolean to HDL Generator
+"""
+
+import os
+import json
+from typing import Dict, List
 from boolean_parser import BooleanExpressionParser
 from kmap_solver import KMapSolver
 from technology_mapper import TechnologyMapper
-from gate_database import GateDatabase
 
 class BooleanToHDLGenerator:
     def __init__(self, technology: str = "TTL", optimize: bool = True):
         self.parser = BooleanExpressionParser()
         self.solver = KMapSolver()
         self.mapper = TechnologyMapper(technology)
-        self.db = GateDatabase()
         self.optimize = optimize
     
     def generate(self, expression: str, circuit_name: str = None) -> Dict:
@@ -23,7 +28,11 @@ class BooleanToHDLGenerator:
         parsed = self.parser.parse_expression(expression)
         
         if not circuit_name:
-            circuit_name = f"logic_{hash(expression) % 1000:04d}"
+            # Create simple name from expression
+            safe_name = expression.replace("&", "and").replace("|", "or").replace("!", "not")
+            safe_name = safe_name.replace("^", "xor").replace("+", "or").replace(" ", "")
+            safe_name = safe_name[:20]  # Limit length
+            circuit_name = f"logic_{safe_name}"
         
         # Step 2: Simplify using K-map
         print("Step 2: Simplifying using K-map...")
@@ -80,7 +89,7 @@ class BooleanToHDLGenerator:
     
     def _generate_verilog(self, name: str, inputs: List[str], 
                          expression: str, ic_mapping: Dict) -> str:
-        """Generate Verilog code from expression and IC mapping"""
+        """Generate Verilog code from expression"""
         
         verilog = f"""// Generated from Boolean expression
 // Original expression: {expression}
@@ -92,11 +101,10 @@ module {name}(
 );
 """
         
-        # For now, generate behavioral code
-        # Later: generate structural code using mapped ICs
+        # Convert expression to Verilog syntax
         expr_verilog = expression
         expr_verilog = expr_verilog.replace("·", "&").replace("+", "|")
-        expr_verilog = expr_verilog.replace("'", "'").replace("!", "'")
+        expr_verilog = expr_verilog.replace("'", "'")
         
         verilog += f"\n    assign Y = {expr_verilog};\n\nendmodule\n"
         
@@ -132,21 +140,22 @@ module tb_{name};
         
         for i, row in enumerate(truth_table):
             input_vals = [str(row["inputs"][var]) for var in inputs]
-            tb += f"        // Test {i}: Inputs = {''.join(input_vals)}\n"
-            tb += f"        {', '.join(inputs)} = {i}'b{''.join(input_vals)};\n"
+            input_str = "".join(input_vals)
+            tb += f"        // Test {i}: Inputs = {input_str}\n"
+            tb += f"        {', '.join(inputs)} = {len(inputs)}'b{input_str};\n"
             tb += f"        #10;\n"
             tb += f"        if (Y !== {row['output']}) begin\n"
             tb += f'            $display("ERROR: Test {i} failed. Expected {row["output"]}, got %b", Y);\n'
             tb += f"        end\n\n"
         
-        tb += """        $display("------------------");
+        tb += f"""        $display("------------------");
         $display("All tests passed!");
         $finish;
     end
     
     // Generate waveforms
     initial begin
-        $dumpfile("test.vcd");
+        $dumpfile("{name}.vcd");
         $dumpvars(0, tb_{name});
     end
     
