@@ -7,6 +7,7 @@ Generates HDL code from boolean expressions with IC mapping
 import re
 import json
 import os
+import sys
 from jinja2 import Template
 
 class BooleanExpressionParser:
@@ -383,7 +384,6 @@ endmodule
 
 # Command-line interface
 def main():
-    import sys
     import argparse
     
     parser = argparse.ArgumentParser(description='Generate HDL from Boolean Expression')
