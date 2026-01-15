@@ -1,20 +1,27 @@
-# gate_database.py
+#!/usr/bin/env python3
+"""
+Gate Database Loader
+"""
+
 import json
 from typing import Dict, List, Optional
 
 class GateDatabase:
     def __init__(self, db_path: str = "metadata/gate_primitives.json"):
-        with open(db_path, 'r') as f:
-            self.data = json.load(f)
+        try:
+            with open(db_path, 'r') as f:
+                self.data = json.load(f)
+        except FileNotFoundError:
+            print(f"Warning: {db_path} not found. Using empty database.")
+            self.data = []
         
         # Create lookup dictionaries for fast access
         self.by_id = {gate["primitive_id"]: gate for gate in self.data}
         self.by_symbol = {}
-        self.by_category = {}
         
         # Build symbol mapping
         for gate in self.data:
-            symbols = gate["logic_properties"]
+            symbols = gate.get("logic_properties", {})
             if "symbol" in symbols:
                 self.by_symbol[symbols["symbol"]] = gate
             
@@ -42,7 +49,7 @@ class GateDatabase:
         gate = self.get_gate(gate_id)
         if not gate:
             return []
-        return gate["ic_implementations"].get(technology, [])
+        return gate.get("ic_implementations", {}).get(technology, [])
     
     def get_recommended_ic(self, gate_id: str, technology: str = "TTL") -> Optional[Dict]:
         ics = self.get_ics_for_gate(gate_id, technology)
@@ -55,14 +62,6 @@ class GateDatabase:
         gate = self.get_gate(gate_id)
         if not gate:
             return None
-        patterns = gate["truth_patterns"]
+        patterns = gate.get("truth_patterns", {})
         key = f"{num_inputs}_input" if num_inputs > 1 else "1_input"
         return patterns.get(key, {}).get("vector")
-    
-    def get_minterms(self, gate_id: str, num_inputs: int = 2) -> Optional[List[int]]:
-        gate = self.get_gate(gate_id)
-        if not gate:
-            return None
-        patterns = gate["truth_patterns"]
-        key = f"{num_inputs}_input" if num_inputs > 1 else "1_input"
-        return patterns.get(key, {}).get("minterms")
