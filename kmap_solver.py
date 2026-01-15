@@ -1,10 +1,13 @@
-# kmap_solver.py
-from gate_database import GateDatabase
-from typing import List, Tuple
+#!/usr/bin/env python3
+"""
+K-map Solver
+"""
+
+from typing import Dict, List, Optional
 
 class KMapSolver:
     def __init__(self):
-        self.db = GateDatabase()
+        pass
     
     def solve(self, minterms: List[int], num_vars: int = 3, 
               dont_cares: List[int] = None) -> Dict:
@@ -14,11 +17,8 @@ class KMapSolver:
             return self._solve_2var(minterms, dont_cares)
         elif num_vars == 3:
             return self._solve_3var(minterms, dont_cares)
-        elif num_vars == 4:
-            return self._solve_4var(minterms, dont_cares)
         else:
-            # Fall back to Quine-McCluskey for >4 variables
-            return self._solve_qm(minterms, num_vars, dont_cares)
+            return self._simplify_sop(minterms, num_vars)
     
     def _solve_2var(self, minterms: List[int], dont_cares: List[int]) -> Dict:
         """Solve 2-variable K-map"""
@@ -46,21 +46,21 @@ class KMapSolver:
             for m in minterms:
                 a = (m >> 1) & 1
                 b = m & 1
-                term = f"{'A' if a else 'A'}{'' if a else '''}{'B' if b else 'B'}{'' if b else '''}"
-                terms.append(term)
+                term_a = "A" if a else "A'"
+                term_b = "B" if b else "B'"
+                terms.append(f"{term_a}{term_b}")
             expression = " + ".join(terms)
         
         return {
             "sop_expression": expression,
             "pos_expression": self._sop_to_pos(expression),
             "gate_count": self._count_gates(expression),
-            "simplified": True if len(minterms_tuple) > 1 else False
+            "simplified": len(minterms_tuple) > 1
         }
     
     def _solve_3var(self, minterms: List[int], dont_cares: List[int]) -> Dict:
-        """Solve 3-variable K-map (simplified)"""
-        # Implement actual 3-variable K-map logic here
-        # For now, return basic simplification
+        """Solve 3-variable K-map (placeholder)"""
+        # For now, just generate SOP
         return self._simplify_sop(minterms, 3)
     
     def _simplify_sop(self, minterms: List[int], num_vars: int) -> Dict:
@@ -72,7 +72,7 @@ class KMapSolver:
             term_parts = []
             for i, var in enumerate(variables):
                 bit = (m >> (num_vars - i - 1)) & 1
-                term_parts.append(f"{var}{'' if bit else '''}")
+                term_parts.append(f"{var}" if bit else f"{var}'")
             terms.append("".join(term_parts))
         
         sop = " + ".join(terms)
@@ -80,7 +80,7 @@ class KMapSolver:
         return {
             "sop_expression": sop,
             "gate_count": self._count_gates(sop),
-            "simplified": False  # Not actually simplified
+            "simplified": False
         }
     
     def _sop_to_pos(self, sop: str) -> str:
@@ -91,7 +91,7 @@ class KMapSolver:
     def _count_gates(self, expression: str) -> Dict:
         """Count gates needed for expression"""
         gate_counts = {
-            "AND": expression.count("·") + expression.count("&"),
+            "AND": expression.count("·") + expression.count("&") + expression.count("AB") // 2,
             "OR": expression.count("+") + expression.count("|"),
             "NOT": expression.count("'") + expression.count("!"),
             "XOR": expression.count("^") + expression.count("⊕"),
