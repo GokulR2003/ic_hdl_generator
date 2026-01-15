@@ -310,21 +310,24 @@ echo "..."
 # ============================================================================
 present_slide "7. BOOLEAN EXPRESSION TO HDL"
 
-create_boolean_modules
+demo_step "Install Boolean Module" "Setting up boolean expression parser"
+run_demo "Install boolean module" "python3 -c 'from boolean_to_hdl import BooleanToHDLGenerator; print(\"Boolean module loaded successfully!\")' 2>/dev/null || echo 'Installing...'"
 
 demo_step "Generate from Boolean Expression" "A&B → HDL code"
-run_demo "Boolean AND" "python3 advanced_generator.py boolean 'A&B' --name demo_and"
+run_demo "Boolean AND" "python3 boolean_to_hdl.py 'A&B' --name demo_and"
 
-demo_step "Generate Complex Expression" "(A^B) + (C&D) → HDL code"
-run_demo "Boolean Complex" "python3 advanced_generator.py boolean 'A^B + C&D' --name demo_complex"
+demo_step "Generate XOR Expression" "A^B → HDL code"
+run_demo "Boolean XOR" "python3 boolean_to_hdl.py 'A^B' --name demo_xor"
+
+demo_step "Generate Complex Expression" "(A&B) | (C&D) → HDL code"
+run_demo "Boolean Complex" "python3 boolean_to_hdl.py '(A&B)|(C&D)' --name demo_complex"
 
 demo_step "Show Generated Boolean Circuit" "Displaying generated code"
-echo "Generated from 'A&B':"
+echo "Generated from '(A&B)|(C&D)':"
 echo "──────────────────────────────────────────────────────────────"
-if [ -f "generated_verilog/demo_and.v" ]; then
-    cat generated_verilog/demo_and.v
+if [ -f "generated_verilog/demo_complex.v" ]; then
+    head -30 generated_verilog/demo_complex.v
 fi
-
 # ============================================================================
 # SLIDE 8: TESTBENCH GENERATION
 # ============================================================================
@@ -535,3 +538,5 @@ echo "🔗 GitHub Repository: https://github.com/GokulR2003/ic_hdl_generator"
 echo "📧 Email: gokulr200305@gmail.com"
 echo "📱 Phone: +91 90929 43337"
 echo "👨‍💻 Author: Gokul R"
+echo "🏛️ Institution: Sastra Deemed University"
+echo "🎓 Project: Automated HDL Generation Framework"
