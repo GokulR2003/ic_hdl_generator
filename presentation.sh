@@ -306,27 +306,28 @@ head -20 generated_circuits/full_adder_1bit.v
 echo "..."
 
 # ============================================================================
-# SLIDE 7: BOOLEAN EXPRESSION FEATURE
+# SLIDE 7: BOOLEAN EXPRESSION TO HDL
 # ============================================================================
 present_slide "7. BOOLEAN EXPRESSION TO HDL"
 
-demo_step "Install Boolean Module" "Setting up boolean expression parser"
-run_demo "Install boolean module" "python3 -c 'from boolean_to_hdl import BooleanToHDLGenerator; print(\"Boolean module loaded successfully!\")' 2>/dev/null || echo 'Installing...'"
+demo_step "Create Boolean Demo Files" "Generating HDL from boolean expressions"
+run_demo "Generate Boolean Circuits" "python3 quick_boolean_fix.py"
 
-demo_step "Generate from Boolean Expression" "A&B → HDL code"
-run_demo "Boolean AND" "python3 boolean_to_hdl.py 'A&B' --name demo_and"
+demo_step "Show Generated Boolean Circuits" "Listing boolean expression files"
+run_demo "List Boolean Files" "ls -la generated_verilog/demo_*.v 2>/dev/null | head -5"
 
-demo_step "Generate XOR Expression" "A^B → HDL code"
-run_demo "Boolean XOR" "python3 boolean_to_hdl.py 'A^B' --name demo_xor"
+demo_step "Display AND Gate Code" "A&B → HDL code"
+echo "Generated AND gate:"
+echo "──────────────────────────────────────────────────────────────"
+if [ -f "generated_verilog/demo_and.v" ]; then
+    cat generated_verilog/demo_and.v
+fi
 
-demo_step "Generate Complex Expression" "(A&B) | (C&D) → HDL code"
-run_demo "Boolean Complex" "python3 boolean_to_hdl.py '(A&B)|(C&D)' --name demo_complex"
-
-demo_step "Show Generated Boolean Circuit" "Displaying generated code"
-echo "Generated from '(A&B)|(C&D)':"
+demo_step "Display Complex Expression" "(A&B)|(C&D) → HDL code"
+echo "Generated complex expression:"
 echo "──────────────────────────────────────────────────────────────"
 if [ -f "generated_verilog/demo_complex.v" ]; then
-    head -30 generated_verilog/demo_complex.v
+    head -10 generated_verilog/demo_complex.v
 fi
 # ============================================================================
 # SLIDE 8: TESTBENCH GENERATION
@@ -534,9 +535,13 @@ echo "  • Simulation-ready"
 echo "  • Industry-standard compliant"
 echo "  • Well-documented"
 echo ""
-echo "🔗 GitHub Repository: https://github.com/GokulR2003/ic_hdl_generator"
-echo "📧 Email: gokulr200305@gmail.com"
-echo "📱 Phone: +91 90929 43337"
-echo "👨‍💻 Author: Gokul R"
-echo "🏛️ Institution: Sastra Deemed University"
-echo "🎓 Project: Automated HDL Generation Framework"
+echo ""
+echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║${NC}${BOLD}                     CONTACT INFORMATION                     ${NC}${CYAN}║${NC}"
+echo -e "${CYAN}╠════════════════════════════════════════════════════════════╣${NC}"
+echo -e "${CYAN}║${NC}  📧 Email:   gokulr200305@gmail.com                   ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  📱 Phone:   +91 90929 43337                          ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  👨‍💻 Author:  Gokul R                                 ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  🔗 GitHub:  https://github.com/GokulR2003            ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  🏛️  Project: Automated HDL Generation Framework       ${CYAN}║${NC}"
+echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
