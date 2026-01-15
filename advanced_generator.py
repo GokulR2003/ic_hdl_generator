@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Advanced HDL Generator with Testbenches and VHDL support
+Advanced HDL Generator with Testbenches, VHDL, and Boolean Expression Support
 """
 
 import json
@@ -9,6 +9,13 @@ import sys
 import argparse
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
+
+# Check for Boolean support modules
+try:
+    from boolean_to_hdl import BooleanToHDLGenerator
+    BOOLEAN_SUPPORT = True
+except ImportError:
+    BOOLEAN_SUPPORT = False
 
 class AdvancedHDLGenerator:
     def __init__(self):
@@ -21,14 +28,23 @@ class AdvancedHDLGenerator:
             lstrip_blocks=True
         )
         
+        # Initialize Boolean generator if available
+        if BOOLEAN_SUPPORT:
+            self.boolean_gen = BooleanToHDLGenerator()
+        
         # Build template maps
         self.verilog_templates = self.build_template_map('verilog')
         self.vhdl_templates = self.build_template_map('vhdl')
         self.testbench_templates = self.build_testbench_map()
     
     def load_metadata(self):
-        with open('Ic_Metadata_Master.json', 'r') as f:
-            return json.load(f)
+        """Load IC metadata"""
+        try:
+            with open('Ic_Metadata_Master.json', 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            print("Warning: Ic_Metadata_Master.json not found")
+            return []
     
     def build_template_map(self, language='verilog'):
         """Map IC part numbers to their template paths"""
@@ -57,7 +73,6 @@ class AdvancedHDLGenerator:
         for root, dirs, files in os.walk(self.testbench_dir):
             for file in files:
                 if file.endswith('_tb.vtpl'):
-                    # Extract part number from filename (e.g., "7400_tb.vtpl")
                     part = file.split('_')[0]
                     rel_path = os.path.relpath(os.path.join(root, file), self.testbench_dir)
                     testbench_map[part] = rel_path
@@ -319,57 +334,135 @@ class AdvancedHDLGenerator:
             print(f"{part:8} {verilog_support:10} {vhdl_support:10} {testbench_support:12} {name}")
         
         print(f"\nTotal: {len(self.metadata)} ICs")
+    
+    def generate_from_boolean(self, expression, circuit_name=None):
+        """Generate HDL from Boolean expression"""
+        if not BOOLEAN_SUPPORT:
+            print("❌ Boolean expression support not available")
+            print("Required modules: boolean_to_hdl.py and dependencies")
+            return False
+        
+        print(f"\nGenerating HDL from Boolean expression:")
+        print(f"Expression: {expression}")
+        
+        try:
+            # Generate using BooleanToHDLGenerator
+            result = self.boolean_gen.generate(expression, circuit_name)
+            
+            # Save generated files
+            output_dir = "generated_verilog"
+            os.makedirs(output_dir, exist_ok=True)
+            
+            # Save Verilog
+            verilog_file = os.path.join(output_dir, f"{result['circuit_name']}.v")
+            with open(verilog_file, 'w') as f:
+                f.write(result['hdl_code'])
+            
+            # Save testbench
+            tb_dir = 'generated_testbenches'
+            os.makedirs(tb_dir, exist_ok=True)
+            tb_file = os.path.join(tb_dir, f"tb_{result['circuit_name']}.v")
+            with open(tb_file, 'w') as f:
+                f.write(result['testbench'])
+            
+            print(f"✓ Generated: {verilog_file}")
+            print(f"✓ Testbench: {tb_file}")
+            
+            # Print summary
+            print("\n" + "="*50)
+            print("BOOLEAN EXPRESSION GENERATION SUMMARY")
+            print("="*50)
+            print(f"Circuit: {result['circuit_name']}")
+            print(f"Original: {result['original_expression']}")
+            print(f"Simplified: {result['simplified_expression']}")
+            print(f"Variables: {', '.join(result['variables'])}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error generating from Boolean expression: {e}")
+            return False
 
 def main():
+    # Create main parser
     parser = argparse.ArgumentParser(
-        description='Advanced HDL Generator with Testbenches and VHDL',
+        description='Advanced HDL Generator with Boolean Expression Support',
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog=f'''
 Examples:
-  %(prog)s generate 7400 --language verilog
-  %(prog)s generate 7474 --language vhdl
-  %(prog)s testbench 7400
-  %(prog)s generate-all --language verilog --testbenches
-  %(prog)s list-supported
+  IC Generation:
+    %(prog)s ic 7400 --language verilog
+    %(prog)s ic 7474 --language vhdl
+    %(prog)s ic-all --language verilog --testbenches
+  
+  Boolean Expression Generation: {'✓ Available' if BOOLEAN_SUPPORT else '✗ Not available'}
+    %(prog)s boolean "A&B + !C" --name my_circuit
+    %(prog)s boolean "A^B" --name xor_gate
+  
+  Testbenches:
+    %(prog)s testbench 7400
+    %(prog)s testbench-all
+  
+  Information:
+    %(prog)s list-supported
         '''
     )
     
-    parser.add_argument('command',
-                       choices=['generate', 'generate-all', 'testbench', 
-                               'testbench-all', 'list-supported'],
-                       help='Command to execute')
+    # Add subparsers for different commands
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
     
-    parser.add_argument('part_number', nargs='?',
-                       help='IC part number')
+    # IC generation command
+    ic_parser = subparsers.add_parser('ic', help='Generate HDL for specific IC')
+    ic_parser.add_argument('part_number', help='IC part number')
+    ic_parser.add_argument('--language', choices=['verilog', 'vhdl'], default='verilog',
+                          help='HDL language')
+    ic_parser.add_argument('--output-dir', help='Output directory')
     
-    parser.add_argument('--language', choices=['verilog', 'vhdl'],
-                       default='verilog', help='HDL language')
+    # Boolean expression command
+    bool_parser = subparsers.add_parser('boolean', help='Generate HDL from Boolean expression')
+    bool_parser.add_argument('expression', help='Boolean expression (e.g., "A&B + !C")')
+    bool_parser.add_argument('--name', help='Circuit name')
+    bool_parser.add_argument('--technology', choices=['TTL', 'CMOS'], default='TTL',
+                           help='Technology family')
     
-    parser.add_argument('--output-dir', help='Output directory')
+    # Generate all ICs command
+    all_parser = subparsers.add_parser('ic-all', help='Generate HDL for all ICs')
+    all_parser.add_argument('--language', choices=['verilog', 'vhdl'], default='verilog',
+                           help='HDL language')
+    all_parser.add_argument('--testbenches', action='store_true',
+                           help='Include testbenches')
     
-    parser.add_argument('--testbenches', action='store_true',
-                       help='Include testbenches with generate-all')
+    # Testbench command
+    tb_parser = subparsers.add_parser('testbench', help='Generate testbench for IC')
+    tb_parser.add_argument('part_number', help='IC part number')
+    tb_parser.add_argument('--output-dir', help='Output directory')
     
+    # Testbench all command
+    subparsers.add_parser('testbench-all', help='Generate testbenches for all ICs')
+    
+    # List supported command
+    subparsers.add_parser('list-supported', help='List all supported ICs')
+    
+    # Parse arguments
     args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return
     
     generator = AdvancedHDLGenerator()
     
-    if args.command == 'list-supported':
-        generator.list_supported()
-    
-    elif args.command == 'generate':
-        if not args.part_number:
-            print("Error: Part number required")
-            return
+    # Route to appropriate function
+    if args.command == 'ic':
         generator.generate_hdl(args.part_number, args.language, args.output_dir)
     
-    elif args.command == 'generate-all':
+    elif args.command == 'boolean':
+        generator.generate_from_boolean(args.expression, args.name)
+    
+    elif args.command == 'ic-all':
         generator.generate_all(args.language, args.testbenches)
     
     elif args.command == 'testbench':
-        if not args.part_number:
-            print("Error: Part number required")
-            return
         generator.generate_testbench(args.part_number, args.output_dir)
     
     elif args.command == 'testbench-all':
@@ -382,6 +475,9 @@ Examples:
                 success += 1
         
         print(f"\nGenerated {success}/{total} testbenches")
+    
+    elif args.command == 'list-supported':
+        generator.list_supported()
 
 if __name__ == '__main__':
     main()
