@@ -23,6 +23,27 @@ cd ic_hdl_generator
 ## Install dependencies
 pip install -r requirements.txt
 ```
+
+## **USAGE INSTRUCTIONS**
+
+### **To run the complete setup:**
+
+```bash
+# 1. Save the setup script
+chmod +x setup.sh
+
+# 2. Run the setup
+./setup.sh
+
+# 3. After setup completes, use the interactive menu
+./run.sh
+
+# 4. Or run the presentation demo
+./presentation_script.sh
+
+# 5. Test the installation
+python3 test_generator.py
+```
 # List supported ICs
 python3 advanced_generator.py list
 
