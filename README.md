@@ -23,21 +23,23 @@ cd ic_hdl_generator
 ## Install dependencies
 pip install -r requirements.txt
 ```
-## List all available ICs
-ic-hdl-gen list
+# List supported ICs
+python3 advanced_generator.py list
 
-## Generate Verilog for 7400
-ic-hdl-gen generate 7400
+# Generate specific IC
+python3 advanced_generator.py generate 7400 --language verilog --testbenches
 
-## Generate VHDL for 7400
-ic-hdl-gen generate 7400 --language vhdl
+# Generate all ICs
+python3 advanced_generator.py generate-all --language verilog --testbenches
 
-## Generate all ICs
-ic-hdl-gen generate-all
+# Boolean expression
+python3 advanced_generator.py boolean "A&B" --name my_and
 
-## Generate testbench
-ic-hdl-gen testbench 7400
+# Generate circuit
+python3 circuit_generator_advanced.py generate full_adder_1bit
 
+# Generate all circuits
+python3 circuit_generator_advanced.py generate-all
 ### Python API
 from src.hdl_generator import HDLGenerator
 
